@@ -24,6 +24,7 @@
 #include "pqNodeEditorLabel.h"
 #include "pqNodeEditorPort.h"
 #include "pqNodeEditorUtils.h"
+#include "pqNodeEditorTimingsWidget.h"
 
 #include <pqDataRepresentation.h>
 #include <pqOutputPort.h>
@@ -153,6 +154,16 @@ pqNodeEditorNode::pqNodeEditorNode(pqProxy* prx, QGraphicsItem* parent)
     }
 
     containerLayout->addWidget(this->proxyProperties);
+    if (dynamic_cast<pqPipelineSource*>(this->proxy) != NULL ||
+	    dynamic_cast<pqPipelineFilter*>(this->proxy) != NULL )
+    {
+      this->timings = new pqNodeEditorTimingsWidget(this->widgetContainer, this->proxy->getProxy()->GetGlobalID());
+      this->timings->setObjectName("timingsWidget");
+      this->timings->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+      containerLayout->addWidget(this->timings);
+    }
+
+    this->updateSize();
   }
 
   this->setVerbosity(pqNodeEditorNode::DefaultNodeVerbosity);
@@ -242,6 +253,24 @@ void pqNodeEditorNode::updateZValue()
 {
   this->setZValue(pqNodeEditorUtils::CONSTS::NODE_LAYER + static_cast<int>(this->isSelected() * 2) +
     static_cast<int>(this->isNodeActive()));
+}
+
+// ----------------------------------------------------------------------------
+void pqNodeEditorNode::updateTimings()
+{
+  if (this->timings)
+  {
+    this->timings->updateTimings();
+  }
+}
+
+// ----------------------------------------------------------------------------
+void pqNodeEditorNode::toggleTimings()
+{
+  if (this->timings)
+  {
+    this->timings->setVisible(!this->timings->isVisible());
+  }
 }
 
 // ----------------------------------------------------------------------------

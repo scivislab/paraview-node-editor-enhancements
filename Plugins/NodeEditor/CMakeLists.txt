@@ -29,6 +29,10 @@ list(APPEND sources
   pqNodeEditorScene.h
   pqNodeEditorLabel.cxx
   pqNodeEditorLabel.h
+  pqNodeEditorTimings.cxx
+  pqNodeEditorTimings.h
+  pqNodeEditorTimingsWidget.cxx
+  pqNodeEditorTimingsWidget.h
 )
 
 paraview_plugin_add_dock_window(
@@ -57,6 +61,8 @@ if(NodeEditor_ENABLE_AUTOLAYOUT)
       Graphviz::gvc)
 endif()
 
+find_package(Qt5 COMPONENTS Widgets Charts REQUIRED)
+
 set_property(SOURCE pqNodeEditorScene.cxx APPEND
   PROPERTY
     COMPILE_DEFINITIONS "NodeEditor_ENABLE_GRAPHVIZ=$<BOOL:${NodeEditor_ENABLE_AUTOLAYOUT}>")
@@ -64,6 +70,8 @@ target_link_libraries(NodeEditor
   PRIVATE
     ParaView::RemotingViews
     ParaView::pqApplicationComponents
+    Qt5::Widgets
+    Qt5::Charts
 )
 target_compile_definitions(NodeEditor PRIVATE QT_NO_KEYWORDS)
 

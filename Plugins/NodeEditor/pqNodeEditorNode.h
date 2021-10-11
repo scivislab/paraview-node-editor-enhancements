@@ -28,6 +28,12 @@ class pqNodeEditorLabel;
 class pqNodeEditorPort;
 class pqProxy;
 class pqProxyWidget;
+class pqView;
+class pqPipelineSource;
+class pqNodeEditorTimingsWidget;
+class QGraphicsScene;
+class QGraphicsSceneMous;
+
 class QSettings;
 
 /**
@@ -173,6 +179,20 @@ public:
   NodeState getNodeState() { return this->nodeState; };
   ///@}
 
+  ///@{
+  /**
+   * Update the timing extracted from TimerLog inside the node
+   */
+  void updateTimings();
+  ///}@
+  
+  ///@{
+  /**
+   * Toggle the visibility of the TimingsWidget
+   */
+  void toggleTimings();
+  ///}@
+
   /**
    * Get the bounding box of the node, which includes the border width and the label.
    */
@@ -218,6 +238,7 @@ protected:
 
   pqProxy* proxy;
   pqProxyWidget* proxyProperties;
+  pqNodeEditorTimingsWidget* timings = nullptr;
   QWidget* widgetContainer;
   pqNodeEditorLabel* label;
 

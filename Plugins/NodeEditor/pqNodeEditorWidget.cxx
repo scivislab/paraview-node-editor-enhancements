@@ -31,6 +31,7 @@
 #include "pqNodeEditorScene.h"
 #include "pqNodeEditorUtils.h"
 #include "pqNodeEditorView.h"
+#include "pqNodeEditorTimings.h"
 
 #include <pqActiveObjects.h>
 #include <pqApplicationCore.h>
@@ -164,6 +165,17 @@ int pqNodeEditorWidget::apply()
     }
   }
   this->applyBehavior->appliedGlobal();
+
+  // update timer log info
+  pqNodeEditorTimings::refreshTimingLogs();
+  for (auto it : nodes)
+  {
+    if (dynamic_cast<pqPipelineSource*>(it.second->getProxy()) != NULL ||
+	dynamic_cast<pqPipelineFilter*>(it.second->getProxy()) != NULL )
+    {
+      it.second->updateTimings();
+    }
+  }
 
   return 1;
 }
@@ -332,6 +344,48 @@ int pqNodeEditorWidget::createToolbar(QLayout* layout)
     this->autoLayoutCheckbox = checkBox;
   }
   addButton(tr("Zoom"), this->actionZoom, 0, 3);
+  // addSeparator();
+
+  // addButton(tr("Cycle Verbosity"), this->actionCycleNodeVerbosity);
+  // { // add checkbox view nodes
+  //   auto checkBox = new QCheckBox(tr("View Nodes"));
+  //   checkBox->setObjectName("ViewNodesCheckbox");
+  //   checkBox->setCheckState(this->showViewNodes ? Qt::Checked : Qt::Unchecked);
+  //   this->connect(checkBox, &QCheckBox::stateChanged, this, [this](int state) {
+  //     this->showViewNodes = state;
+  //     auto smm = pqApplicationCore::instance()->getServerManagerModel();
+  //     for (auto proxy : smm->findItems<pqView*>())
+  //     {
+  //       this->updateVisibilityEdges(proxy);
+  //     }
+  //     this->updateActiveView();
+  //     return 1;
+  //   });
+  //   toolbarLayout->addWidget(checkBox);
+  // }
+
+  {
+    auto checkBox = new QCheckBox("Show Timings");
+    checkBox->setObjectName("ViewTimingsCheckbox");
+    checkBox->setCheckState(this->showViewNodes ? Qt::Checked : Qt::Unchecked);
+    this->connect(checkBox, &QCheckBox::stateChanged, this, [this](int state) {
+      auto nodes = this->nodeRegistry;
+      for (auto it : nodes)
+      {
+	if (dynamic_cast<pqPipelineSource*>(it.second->getProxy()) != NULL ||
+	    dynamic_cast<pqPipelineFilter*>(it.second->getProxy()) != NULL )
+      	{
+	  it.second->toggleTimings();
+	}
+      }
+      this->updateActiveView();
+      return 1;
+    });
+    toolbarLayout->addWidget(checkBox);
+  }
+
+  // // add spacer
+  // toolbarLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
 
   return 1;
 }
