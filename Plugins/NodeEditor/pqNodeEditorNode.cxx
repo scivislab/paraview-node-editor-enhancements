@@ -159,7 +159,7 @@ pqNodeEditorNode::pqNodeEditorNode(pqProxy* prx, QGraphicsItem* parent)
     {
       this->timings = new pqNodeEditorTimingsWidget(this->widgetContainer, this->proxy->getProxy()->GetGlobalID());
       this->timings->setObjectName("timingsWidget");
-      this->timings->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+      this->timings->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed));
       containerLayout->addWidget(this->timings);
     }
 

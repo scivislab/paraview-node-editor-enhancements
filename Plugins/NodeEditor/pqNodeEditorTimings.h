@@ -36,14 +36,17 @@ public:
   static double getLocalTimings(vtkTypeUInt32 global_Id);
   static std::vector<double> getServerTimings(vtkTypeUInt32 global_Id);
   static std::vector<double> getDataServerTimings(vtkTypeUInt32 global_Id);
+  static double getMaxTime();
 
 private:
   static void addClientTimerInformation(vtkSmartPointer<vtkPVTimerInformation> timerInfo);
   static void addServerTimerInformation(vtkSmartPointer<vtkPVTimerInformation> timerInfo, bool isDataServer);
+  static void updateMax();
 
   static std::map<vtkTypeUInt32, double> localTimings;
   static std::map<vtkTypeUInt32, std::vector<double>> serverTimings;
   static std::map<vtkTypeUInt32, std::vector<double>> dataServerTimings;
+  static double max;
 };
 
 #endif // pqNodeEditorTimings_h

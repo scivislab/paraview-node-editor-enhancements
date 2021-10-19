@@ -44,6 +44,7 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
   this->timingsChart->setAnimationOptions(QChart::SeriesAnimations);
   this->timingsChart->layout()->setContentsMargins(0, 0, 0, 0);
   this->timingsChart->setBackgroundRoundness(0);
+  this->timingsChart->setBackgroundVisible(false);
   this->timingsChart->legend()->setVisible(false);
   //this->timingsChart->legend()->setAlignment(Qt::AlignBottom);
 
@@ -100,6 +101,8 @@ void pqNodeEditorTimingsWidget::updateTimings()
     *data << dataServerTime;
     max = dataServerTime > max ? dataServerTime : max;
   }
+
+  max = pqNodeEditorTimings::getMaxTime();
 
   QBarSeries* timingBarSeries = new QBarSeries();
   timingBarSeries->setLabelsVisible(false);

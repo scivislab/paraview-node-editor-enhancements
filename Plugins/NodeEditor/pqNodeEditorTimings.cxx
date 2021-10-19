@@ -17,6 +17,7 @@
 std::map<vtkTypeUInt32, double> pqNodeEditorTimings::localTimings;
 std::map<vtkTypeUInt32, std::vector<double>> pqNodeEditorTimings::serverTimings;
 std::map<vtkTypeUInt32, std::vector<double>> pqNodeEditorTimings::dataServerTimings;
+double pqNodeEditorTimings::max;
 
 void pqNodeEditorTimings::refreshTimingLogs()
 {
@@ -61,6 +62,8 @@ void pqNodeEditorTimings::refreshTimingLogs()
       pqNodeEditorTimings::addServerTimerInformation(timerInfo, true);
     }
   }
+
+  pqNodeEditorTimings::updateMax();
 }
 
 double pqNodeEditorTimings::getLocalTimings(vtkTypeUInt32 global_Id)
@@ -105,6 +108,11 @@ std::vector<double> pqNodeEditorTimings::getDataServerTimings(vtkTypeUInt32 glob
     // global id does not occur in logs
   }
   return times;
+}
+
+double pqNodeEditorTimings::getMaxTime()
+{
+  return pqNodeEditorTimings::max;
 }
 
 void pqNodeEditorTimings::addClientTimerInformation(vtkSmartPointer<vtkPVTimerInformation> timerInfo)
@@ -187,4 +195,28 @@ void pqNodeEditorTimings::addServerTimerInformation(vtkSmartPointer<vtkPVTimerIn
       }
     }
   }
+}
+
+void pqNodeEditorTimings::updateMax()
+{
+  double new_max = 0.0;
+  for (auto& t : pqNodeEditorTimings::localTimings)
+  {
+    new_max = new_max < t.second ? t.second : new_max;
+  }
+  for (auto& timings : pqNodeEditorTimings::serverTimings)
+  {
+    for (double t : timings.second)
+    {
+      new_max = new_max < t ? t : new_max;
+    } 
+  }
+  for (auto& timings : pqNodeEditorTimings::dataServerTimings)
+  {
+    for (double t : timings.second)
+    {
+      new_max = new_max < t ? t : new_max;
+    } 
+  }
+  pqNodeEditorTimings::max = new_max;
 }
