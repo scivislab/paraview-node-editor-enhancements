@@ -29,8 +29,10 @@
 #include <QtCharts/QBarCategoryAxis>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QAbstractAxis>
+#include <QLineEdit>
 
 #include <vector>
+#include <stdio.h>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -40,15 +42,21 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
 
   // create chart
   this->timingsChart = new QChart();
-  //this->timingsChart->setTitle("timings from TimerLog");
+  //this->timingsChart->setTheme(QChart::ChartThemeDark);
   this->timingsChart->setAnimationOptions(QChart::SeriesAnimations);
   this->timingsChart->layout()->setContentsMargins(0, 0, 0, 0);
   this->timingsChart->setBackgroundRoundness(0);
   this->timingsChart->setBackgroundVisible(false);
+  this->timingsChart->setPlotAreaBackgroundVisible(true);
   this->timingsChart->legend()->setVisible(false);
-  //this->timingsChart->legend()->setAlignment(Qt::AlignBottom);
+  
+
+  QColor c = palette().mid().color();
+  this->timingsChart->setPlotAreaBackgroundBrush(QBrush(c));
+  this->timingsChart->setPlotAreaBackgroundPen(QPen(c));
 
   this->updateTimings();
+  //std::cout << "chart theme is " << this->timingsChart->theme() << std::endl;
     
   QChartView *chartView = new QChartView(this->timingsChart);
   chartView->setRenderHint(QPainter::Antialiasing);
@@ -71,9 +79,8 @@ void pqNodeEditorTimingsWidget::updateTimings()
   // remove old data if any is there
   this->timingsChart->removeAllSeries();
 
-  //##### TEST
   QStringList categories;
-  categories << "local";
+  categories << "l";
   
   double min = 0.0;
   double max = localTime;
@@ -83,7 +90,7 @@ void pqNodeEditorTimingsWidget::updateTimings()
   for (int stIdx = 0; stIdx < serverTimes.size(); stIdx++)
   {
     if (stIdx == 0)
-      categories << "server (s0)";
+      categories << "s0";
     else
       categories << QString("s") + QString::number(stIdx);
     double serverTime = serverTimes.at(stIdx);
@@ -94,7 +101,7 @@ void pqNodeEditorTimingsWidget::updateTimings()
   for (int stIdx = 0; stIdx < dataServerTimes.size(); stIdx++)
   {
     if (stIdx == 0)
-      categories << "data server (d0)";
+      categories << "d0";
     else
       categories << QString("d") + QString::number(stIdx);
     double dataServerTime = dataServerTimes.at(stIdx);
@@ -106,56 +113,20 @@ void pqNodeEditorTimingsWidget::updateTimings()
 
   QBarSeries* timingBarSeries = new QBarSeries();
   timingBarSeries->setLabelsVisible(false);
-  //timingBarSeries->setBarWidth(0.1);
   timingBarSeries->append(data);
-  
-  //##### TEST END
-
-  /*
-  // create new bar sets
-  QBarSet* local = new QBarSet("local");
-  QBarSet* server = new QBarSet("server");
-  QBarSet* data = new QBarSet("data");
-
-  // track max for axis
-  double min = 0.0;
-  double max = localTime;
-
-  // fill bar sets
-  *local << localTime;
-  *server << 0.0;
-  *data << 0.0;
-  for (double serverTime : serverTimes)
-  {
-    *server << serverTime;
-    *data << 0.0;
-    max = serverTime > max ? serverTime : max;
-  }
-  for (double dataServerTime : dataServerTimes)
-  {
-    *data << dataServerTime;
-    max = dataServerTime > max ? dataServerTime : max;
-  }
-
-  // add bar sets to stacked bar series
-  QStackedBarSeries* timingBarSeries = new QStackedBarSeries();
-  timingBarSeries->append(local);
-  timingBarSeries->append(server);
-  if (!dataServerTimes.empty())
-  {
-    timingBarSeries->append(data);
-  }
-  */
 
   // add series to chart
   this->timingsChart->addSeries(timingBarSeries);
+
+  QColor c = palette().text().color();
 
   QList<QAbstractAxis*> axisListHoriz = this->timingsChart->axes(Qt::Horizontal);
   if (axisListHoriz.empty())
   {
     QBarCategoryAxis *axisX = new QBarCategoryAxis();
+    axisX->setLabelsBrush(QBrush(c));
     axisX->append(categories);
-    axisX->setRange("local","");
+    axisX->setRange("l","");
     this->timingsChart->addAxis(axisX, Qt::AlignBottom);
     timingBarSeries->attachAxis(axisX);
   }
@@ -170,6 +141,7 @@ void pqNodeEditorTimingsWidget::updateTimings()
   if (axisList.empty())
   {
     QValueAxis *axisY = new QValueAxis();
+    axisY->setLabelsBrush(QBrush(c));
     this->timingsChart->addAxis(axisY, Qt::AlignLeft);
     timingBarSeries->attachAxis(axisY);
     axisY->setRange(min,max);
