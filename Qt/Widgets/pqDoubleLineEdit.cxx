@@ -258,7 +258,7 @@ void pqDoubleLineEdit::setUseGlobalPrecisionAndNotation(bool value)
 void pqDoubleLineEdit::paintEvent(QPaintEvent* evt)
 {
   auto& internals = (*this->Internals);
-  if (internals.useFullPrecision(this))
+  if (true)//(internals.useFullPrecision(this))
   {
     this->Superclass::paintEvent(evt);
   }

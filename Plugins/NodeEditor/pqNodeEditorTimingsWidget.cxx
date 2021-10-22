@@ -42,21 +42,17 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
 
   // create chart
   this->timingsChart = new QChart();
-  //this->timingsChart->setTheme(QChart::ChartThemeDark);
+  this->timingsChart->setTheme(QChart::ChartThemeLight);
   this->timingsChart->setAnimationOptions(QChart::SeriesAnimations);
-  this->timingsChart->layout()->setContentsMargins(0, 0, 0, 0);
+  this->timingsChart->layout()->setContentsMargins(0,0,0,0);
   this->timingsChart->setBackgroundRoundness(0);
   this->timingsChart->setBackgroundVisible(false);
   this->timingsChart->setPlotAreaBackgroundVisible(true);
   this->timingsChart->legend()->setVisible(false);
+  this->timingsChart->legend()->hide();
   
-
-  QColor c = palette().mid().color();
-  this->timingsChart->setPlotAreaBackgroundBrush(QBrush(c));
-  this->timingsChart->setPlotAreaBackgroundPen(QPen(c));
-
+  QColor c = palette().dark().color();
   this->updateTimings();
-  //std::cout << "chart theme is " << this->timingsChart->theme() << std::endl;
     
   QChartView *chartView = new QChartView(this->timingsChart);
   chartView->setRenderHint(QPainter::Antialiasing);
@@ -111,6 +107,7 @@ void pqNodeEditorTimingsWidget::updateTimings()
 
   max = pqNodeEditorTimings::getMaxTime();
 
+  data->setBorderColor(QColor(Qt::transparent));
   QBarSeries* timingBarSeries = new QBarSeries();
   timingBarSeries->setLabelsVisible(false);
   timingBarSeries->append(data);
@@ -119,16 +116,22 @@ void pqNodeEditorTimingsWidget::updateTimings()
   this->timingsChart->addSeries(timingBarSeries);
 
   QColor c = palette().text().color();
+  QColor g = palette().dark().color();
+  QPen axisPen(palette().dark().color());
+  axisPen.setWidth(1);
 
   QList<QAbstractAxis*> axisListHoriz = this->timingsChart->axes(Qt::Horizontal);
   if (axisListHoriz.empty())
   {
     QBarCategoryAxis *axisX = new QBarCategoryAxis();
     axisX->setLabelsBrush(QBrush(c));
+    axisX->setGridLineColor(g);
     axisX->append(categories);
     axisX->setRange("l","");
     this->timingsChart->addAxis(axisX, Qt::AlignBottom);
     timingBarSeries->attachAxis(axisX);
+
+    axisX->setLinePen(axisPen);
   }
   else
   {
@@ -142,9 +145,12 @@ void pqNodeEditorTimingsWidget::updateTimings()
   {
     QValueAxis *axisY = new QValueAxis();
     axisY->setLabelsBrush(QBrush(c));
+    axisY->setGridLineColor(g);
     this->timingsChart->addAxis(axisY, Qt::AlignLeft);
     timingBarSeries->attachAxis(axisY);
     axisY->setRange(min,max);
+
+    axisY->setLinePen(axisPen);
   }
   else
   {

@@ -283,4 +283,9 @@ void pqNodeEditorScene::drawBackground(QPainter* painter, const QRectF& rect)
   {
     painter->drawLine(recL, y, recR, y);
   }
+
+  // painter->setRenderHints(QPainter::Antialiasing);
+  // //painter->setPen(QColor(60, 60, 60));
+  // painter->setPen(QColor(200, 200, 200));
+  // painter->drawLines(lines.data(), lines.size());
 }
