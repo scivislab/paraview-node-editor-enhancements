@@ -25,6 +25,7 @@
 #include "vtkType.h"
 #include "vtkSmartPointer.h"
 #include "vtkPVTimerInformation.h"
+#include "vtkSMProxy.h"
 #include <vector>
 #include <map>
 
@@ -47,6 +48,8 @@ private:
   static std::map<vtkTypeUInt32, std::vector<double>> serverTimings;
   static std::map<vtkTypeUInt32, std::vector<double>> dataServerTimings;
   static double max;
+
+  static std::vector<vtkSmartPointer<vtkSMProxy>> LogRecorderProxies;
 };
 
 #endif // pqNodeEditorTimings_h
