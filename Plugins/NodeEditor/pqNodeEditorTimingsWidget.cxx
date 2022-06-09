@@ -40,6 +40,8 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
 {
   setMinimumSize(200, 200);
 
+  pqNodeEditorTimings::addGlobalId(this->global_id);
+
   // create chart
   this->timingsChart = new QChart();
   this->timingsChart->setTheme(QChart::ChartThemeLight);
@@ -63,14 +65,15 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
 
 pqNodeEditorTimingsWidget::~pqNodeEditorTimingsWidget()
 {
+  pqNodeEditorTimings::removeGlobalId(this->global_id);
 }
 
 void pqNodeEditorTimingsWidget::updateTimings()
 {
   // fetch data from pqNodeEditorTimings
-  double localTime = pqNodeEditorTimings::getLocalTimings(this->global_id);
-  std::vector<double> serverTimes = pqNodeEditorTimings::getServerTimings(this->global_id);
-  std::vector<double> dataServerTimes = pqNodeEditorTimings::getDataServerTimings(this->global_id); // this is only needed if render and data server are seperate
+  double localTime = pqNodeEditorTimings::getLatestLocalTimings(this->global_id);
+  std::vector<double> serverTimes = pqNodeEditorTimings::getLatestServerTimings(this->global_id);
+  std::vector<double> dataServerTimes = pqNodeEditorTimings::getLatestDataServerTimings(this->global_id); // this is only needed if render and data server are seperate
 
   // remove old data if any is there
   this->timingsChart->removeAllSeries();

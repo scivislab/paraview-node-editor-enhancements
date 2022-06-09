@@ -29,9 +29,10 @@ namespace
   constexpr int EXECUTION_CATEGORY = 5;
 }
 
-std::map<vtkTypeUInt32, double> pqNodeEditorTimings::localTimings;
-std::map<vtkTypeUInt32, std::vector<double>> pqNodeEditorTimings::serverTimings;
-std::map<vtkTypeUInt32, std::vector<double>> pqNodeEditorTimings::dataServerTimings;
+std::map<vtkTypeUInt32, std::vector<double>> pqNodeEditorTimings::localTimings;
+std::map<vtkTypeUInt32, std::vector<std::vector<double>>> pqNodeEditorTimings::serverTimings;
+std::map<vtkTypeUInt32, std::vector<std::vector<double>>> pqNodeEditorTimings::dataServerTimings;
+std::set<vtkTypeUInt32> pqNodeEditorTimings::globalIds;
 double pqNodeEditorTimings::max;
 
 std::vector<vtkSmartPointer<vtkSMProxy>> pqNodeEditorTimings::LogRecorderProxies;
@@ -46,7 +47,7 @@ void pqNodeEditorTimings::refreshTimingLogs()
     return;
   }
 
-  // and increase log buffer size
+  
   vtkSMSessionProxyManager* pxm = server->proxyManager();
 
   //######################
@@ -62,6 +63,13 @@ void pqNodeEditorTimings::refreshTimingLogs()
   server->session()->GatherInformation(vtkPVSession::CLIENT, serverInfo, 0);
   pqNodeEditorTimings::addClientTimerInformation(serverInfo);
   //pqNodeEditorTimings::RankNumbers.push_back(serverInfo->GetNumberOfProcesses());
+
+  // this is how to get logs from logrecorder proxies - these are the new logs
+  // vtkNew<vtkPVLogInformation> logInformation;
+  // logInformation->SetRank(0);
+  // pqNodeEditorTimings::LogRecorderProxies[CLIENT_PROCESS]->GatherInformation(logInformation);
+  // logInformation->GetLogs();
+  
 
   if (server->isRemote())
   {
@@ -102,6 +110,7 @@ void pqNodeEditorTimings::refreshTimingLogs()
   
 
   /*
+  // and increase log buffer size
   vtkSMProxy* proxy = pxm->NewProxy("misc", "TimerLog");
   vtkSMPropertyHelper(proxy, "MaxEntries").Set(180000);
   proxy->UpdateVTKObjects();
@@ -138,46 +147,61 @@ void pqNodeEditorTimings::refreshTimingLogs()
   pqNodeEditorTimings::updateMax();
 }
 
-double pqNodeEditorTimings::getLocalTimings(vtkTypeUInt32 global_Id)
+double pqNodeEditorTimings::getLatestLocalTimings(vtkTypeUInt32 global_Id)
 {
   double time = 0.0;
+  std::vector<double> lt;
   try
   {
-    time = pqNodeEditorTimings::localTimings.at(global_Id);
+    lt = pqNodeEditorTimings::localTimings.at(global_Id);
   }
   catch (const std::out_of_range& e)
   {
     // global id does not occur in logs
   }
+  if (!lt.empty())
+  {
+    time = lt.back();
+  }
+
   return time;
 }
 
-std::vector<double> pqNodeEditorTimings::getServerTimings(vtkTypeUInt32 global_Id)
+std::vector<double> pqNodeEditorTimings::getLatestServerTimings(vtkTypeUInt32 global_Id)
 {
   std::vector<double> times;
-  std::cout << "looking for logs for gid " << global_Id;
+  std::vector<std::vector<double>> st;
   try
   {
-    times = pqNodeEditorTimings::serverTimings.at(global_Id);
-    std::cout << "there are " << times.size() << " timings for gid " << global_Id << std::endl;
+    st = pqNodeEditorTimings::serverTimings.at(global_Id);
   }
   catch (const std::out_of_range& e)
   {
     // global id does not occur in logs
   }
+  if (!st.empty())
+  {
+    times = st.back();
+  }
+
   return times;
 }
 
-std::vector<double> pqNodeEditorTimings::getDataServerTimings(vtkTypeUInt32 global_Id)
+std::vector<double> pqNodeEditorTimings::getLatestDataServerTimings(vtkTypeUInt32 global_Id)
 {
   std::vector<double> times;
+  std::vector<std::vector<double>> dst;
   try
   {
-    times = pqNodeEditorTimings::dataServerTimings.at(global_Id);
+    dst = pqNodeEditorTimings::dataServerTimings.at(global_Id);
   }
   catch (const std::out_of_range& e)
   {
     // global id does not occur in logs
+  }
+  if (!dst.empty())
+  {
+    times = dst.back();
   }
   return times;
 }
@@ -189,13 +213,19 @@ double pqNodeEditorTimings::getMaxTime()
 
 void pqNodeEditorTimings::addClientTimerInformation(vtkSmartPointer<vtkPVTimerInformation> timerInfo)
 {
-  // check if thera are logs to parse
+  // check if there are logs to parse
   int numLogs = timerInfo->GetNumberOfLogs();
   if (numLogs < 1)
   {
     qWarning() << "No client timer info could be retrieved";
   }
+  std::cout << "convert " << numLogs << " log in timings map" << std::endl;
   std::string str = timerInfo->GetLog(0);
+  for (int i = 0; i < numLogs; i++)
+  {
+    std::cout << "########### print log " << i << std::endl;
+    std::cout << timerInfo->GetLog(i) << std::endl;
+  }
 
   //create regex
   std::regex line_re("id:[ ]*([0-9]+),[ ]*(\\d+.\\d+(e-?\\d+)?)[ ]*seconds");
@@ -218,7 +248,7 @@ void pqNodeEditorTimings::addClientTimerInformation(vtkSmartPointer<vtkPVTimerIn
     double seconds = std::stod(match[2].str());
     vtkTypeUInt32 global_id = std::stoi(match[1].str());
 
-    pqNodeEditorTimings::localTimings[global_id] = seconds;
+    pqNodeEditorTimings::localTimings[global_id].emplace_back(seconds);
   }
 }
 
@@ -257,13 +287,13 @@ void pqNodeEditorTimings::addServerTimerInformation(vtkSmartPointer<vtkPVTimerIn
 
       if (isDataServer)
       {
-	pqNodeEditorTimings::dataServerTimings[global_id].resize(numLogs, 0.0);	
-	pqNodeEditorTimings::dataServerTimings[global_id][logId] = seconds;
+	      pqNodeEditorTimings::dataServerTimings[global_id].resize(numLogs);	
+	      pqNodeEditorTimings::dataServerTimings[global_id][logId].emplace_back(seconds);
       }
       else
       {
-	pqNodeEditorTimings::serverTimings[global_id].resize(numLogs, 0.0);	
-	pqNodeEditorTimings::serverTimings[global_id][logId] = seconds;
+        pqNodeEditorTimings::serverTimings[global_id].resize(numLogs);	
+        pqNodeEditorTimings::serverTimings[global_id][logId].emplace_back(seconds);
       }
     }
   }
@@ -272,23 +302,56 @@ void pqNodeEditorTimings::addServerTimerInformation(vtkSmartPointer<vtkPVTimerIn
 void pqNodeEditorTimings::updateMax()
 {
   double new_max = 0.0;
-  for (auto& t : pqNodeEditorTimings::localTimings)
+
+  // get max from local timings
+  for (auto& timings : pqNodeEditorTimings::localTimings)
   {
-    new_max = new_max < t.second ? t.second : new_max;
+    for (auto& t : timings.second)
+    {
+      if (pqNodeEditorTimings::globalIds.count(timings.first) )
+        new_max = new_max < t ? t : new_max;
+    }
   }
+
+  // get max from server timings
   for (auto& timings : pqNodeEditorTimings::serverTimings)
   {
-    for (double t : timings.second)
+    if (pqNodeEditorTimings::globalIds.count(timings.first) )
     {
-      new_max = new_max < t ? t : new_max;
-    } 
+      for (auto& ranks : timings.second)
+      {
+        for (double t : ranks)
+        {
+          new_max = new_max < t ? t : new_max;
+        }
+      } 
+    }
   }
+
+  // get max from data server timings
   for (auto& timings : pqNodeEditorTimings::dataServerTimings)
   {
-    for (double t : timings.second)
+    if (pqNodeEditorTimings::globalIds.count(timings.first) )
     {
-      new_max = new_max < t ? t : new_max;
-    } 
+    for (auto& ranks : timings.second)
+      {
+        for (double t : ranks)
+        {
+          new_max = new_max < t ? t : new_max;
+        }
+      } 
+    }
   }
+
   pqNodeEditorTimings::max = new_max;
+}
+
+void pqNodeEditorTimings::addGlobalId(vtkTypeUInt32 gid)
+{
+  pqNodeEditorTimings::globalIds.insert(gid);
+}
+
+void pqNodeEditorTimings::removeGlobalId(vtkTypeUInt32 gid)
+{
+  pqNodeEditorTimings::globalIds.erase(gid);
 }

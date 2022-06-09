@@ -28,25 +28,30 @@
 #include "vtkSMProxy.h"
 #include <vector>
 #include <map>
+#include <set>
 
 class pqNodeEditorTimings
 {
 public:
   static void refreshTimingLogs();
 
-  static double getLocalTimings(vtkTypeUInt32 global_Id);
-  static std::vector<double> getServerTimings(vtkTypeUInt32 global_Id);
-  static std::vector<double> getDataServerTimings(vtkTypeUInt32 global_Id);
+  static double getLatestLocalTimings(vtkTypeUInt32 global_Id);
+  static std::vector<double> getLatestServerTimings(vtkTypeUInt32 global_Id);
+  static std::vector<double> getLatestDataServerTimings(vtkTypeUInt32 global_Id);
   static double getMaxTime();
+
+  static void addGlobalId(vtkTypeUInt32 global_Id);
+  static void removeGlobalId(vtkTypeUInt32 global_Id);
 
 private:
   static void addClientTimerInformation(vtkSmartPointer<vtkPVTimerInformation> timerInfo);
   static void addServerTimerInformation(vtkSmartPointer<vtkPVTimerInformation> timerInfo, bool isDataServer);
   static void updateMax();
 
-  static std::map<vtkTypeUInt32, double> localTimings;
-  static std::map<vtkTypeUInt32, std::vector<double>> serverTimings;
-  static std::map<vtkTypeUInt32, std::vector<double>> dataServerTimings;
+  static std::map<vtkTypeUInt32, std::vector<double>> localTimings;
+  static std::map<vtkTypeUInt32, std::vector<std::vector<double>>> serverTimings;
+  static std::map<vtkTypeUInt32, std::vector<std::vector<double>>> dataServerTimings;
+  static std::set<vtkTypeUInt32> globalIds;
   static double max;
 
   static std::vector<vtkSmartPointer<vtkSMProxy>> LogRecorderProxies;
