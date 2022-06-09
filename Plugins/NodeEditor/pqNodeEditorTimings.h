@@ -38,6 +38,9 @@ public:
   static double getLatestLocalTimings(vtkTypeUInt32 global_Id);
   static std::vector<double> getLatestServerTimings(vtkTypeUInt32 global_Id);
   static std::vector<double> getLatestDataServerTimings(vtkTypeUInt32 global_Id);
+  static std::vector<double> getLocalTimings(vtkTypeUInt32 global_Id);
+  static std::vector<std::vector<double>> getServerTimings(vtkTypeUInt32 global_Id);
+  static std::vector<std::vector<double>> getDataServerTimings(vtkTypeUInt32 global_Id);
   static double getMaxTime();
 
   static void addGlobalId(vtkTypeUInt32 global_Id);

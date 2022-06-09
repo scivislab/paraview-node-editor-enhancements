@@ -150,6 +150,38 @@ void pqNodeEditorTimings::refreshTimingLogs()
 double pqNodeEditorTimings::getLatestLocalTimings(vtkTypeUInt32 global_Id)
 {
   double time = 0.0;
+  std::vector<double> lt = getLocalTimings(global_Id);
+  if (!lt.empty())
+  {
+    time = lt.back();
+  }
+  return time;
+}
+
+std::vector<double> pqNodeEditorTimings::getLatestServerTimings(vtkTypeUInt32 global_Id)
+{
+  std::vector<double> times;
+  std::vector<std::vector<double>> st = getServerTimings(global_Id);
+  if (!st.empty())
+  {
+    times = st.back();
+  }
+  return times;
+}
+
+std::vector<double> pqNodeEditorTimings::getLatestDataServerTimings(vtkTypeUInt32 global_Id)
+{
+  std::vector<double> times;
+  std::vector<std::vector<double>> dst = getDataServerTimings(global_Id);
+  if (!dst.empty())
+  {
+    times = dst.back();
+  }
+  return times;
+}
+
+std::vector<double> pqNodeEditorTimings::getLocalTimings(vtkTypeUInt32 global_Id)
+{
   std::vector<double> lt;
   try
   {
@@ -159,17 +191,11 @@ double pqNodeEditorTimings::getLatestLocalTimings(vtkTypeUInt32 global_Id)
   {
     // global id does not occur in logs
   }
-  if (!lt.empty())
-  {
-    time = lt.back();
-  }
-
-  return time;
+  return lt;
 }
 
-std::vector<double> pqNodeEditorTimings::getLatestServerTimings(vtkTypeUInt32 global_Id)
+std::vector<std::vector<double>> pqNodeEditorTimings::getServerTimings(vtkTypeUInt32 global_Id)
 {
-  std::vector<double> times;
   std::vector<std::vector<double>> st;
   try
   {
@@ -179,17 +205,11 @@ std::vector<double> pqNodeEditorTimings::getLatestServerTimings(vtkTypeUInt32 gl
   {
     // global id does not occur in logs
   }
-  if (!st.empty())
-  {
-    times = st.back();
-  }
-
-  return times;
+  return st;
 }
 
-std::vector<double> pqNodeEditorTimings::getLatestDataServerTimings(vtkTypeUInt32 global_Id)
+std::vector<std::vector<double>> pqNodeEditorTimings::getDataServerTimings(vtkTypeUInt32 global_Id)
 {
-  std::vector<double> times;
   std::vector<std::vector<double>> dst;
   try
   {
@@ -199,11 +219,7 @@ std::vector<double> pqNodeEditorTimings::getLatestDataServerTimings(vtkTypeUInt3
   {
     // global id does not occur in logs
   }
-  if (!dst.empty())
-  {
-    times = dst.back();
-  }
-  return times;
+  return dst;
 }
 
 double pqNodeEditorTimings::getMaxTime()
