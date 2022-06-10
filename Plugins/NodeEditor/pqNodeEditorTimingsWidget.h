@@ -25,6 +25,7 @@
 #include "vtkType.h"
 #include <QtWidgets>
 #include <QtCharts/QChart>
+#include <QtCharts/QBoxSet>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -39,6 +40,7 @@ public:
   void updateTimings();
   
 private:
+  QBoxSet* createBoxSetFromVector(std::vector<double> timings);
   vtkTypeUInt32 global_id;
   QChart* timingsChart = nullptr;
 };

@@ -50,71 +50,73 @@ void pqNodeEditorTimings::refreshTimingLogs()
   
   vtkSMSessionProxyManager* pxm = server->proxyManager();
 
-  //######################
-  pqNodeEditorTimings::LogRecorderProxies.push_back(pxm->NewProxy("misc", "LogRecorder"));
-  pqNodeEditorTimings::LogRecorderProxies[CLIENT_PROCESS]->SetLocation(vtkSMSession::CLIENT);
-  vtkSMPropertyHelper(pqNodeEditorTimings::LogRecorderProxies[CLIENT_PROCESS], "RankEnabled").Set(0);
-  pqNodeEditorTimings::LogRecorderProxies[CLIENT_PROCESS]->UpdateVTKObjects();
+  // //######################
+  // pqNodeEditorTimings::LogRecorderProxies.push_back(pxm->NewProxy("misc", "LogRecorder"));
+  // pqNodeEditorTimings::LogRecorderProxies[CLIENT_PROCESS]->SetLocation(vtkSMSession::CLIENT);
+  // vtkSMPropertyHelper(pqNodeEditorTimings::LogRecorderProxies[CLIENT_PROCESS], "RankEnabled").Set(0);
+  // pqNodeEditorTimings::LogRecorderProxies[CLIENT_PROCESS]->UpdateVTKObjects();
 
-  //pqNodeEditorTimings::Ui->processComboBox->addItem("Client");
-  //vtkNew<vtkPVServerInformation> serverInfo;
-   vtkSmartPointer<vtkPVTimerInformation> serverInfo = vtkSmartPointer<vtkPVTimerInformation>::New();
+  // //pqNodeEditorTimings::Ui->processComboBox->addItem("Client");
+  // //vtkNew<vtkPVServerInformation> serverInfo;
+  //  vtkSmartPointer<vtkPVTimerInformation> serverInfo = vtkSmartPointer<vtkPVTimerInformation>::New();
 
-  server->session()->GatherInformation(vtkPVSession::CLIENT, serverInfo, 0);
-  pqNodeEditorTimings::addClientTimerInformation(serverInfo);
-  //pqNodeEditorTimings::RankNumbers.push_back(serverInfo->GetNumberOfProcesses());
+  // server->session()->GatherInformation(vtkPVSession::CLIENT, serverInfo, 0);
+  // pqNodeEditorTimings::addClientTimerInformation(serverInfo);
+  // //pqNodeEditorTimings::RankNumbers.push_back(serverInfo->GetNumberOfProcesses());
 
-  // this is how to get logs from logrecorder proxies - these are the new logs
-  // vtkNew<vtkPVLogInformation> logInformation;
-  // logInformation->SetRank(0);
-  // pqNodeEditorTimings::LogRecorderProxies[CLIENT_PROCESS]->GatherInformation(logInformation);
-  // logInformation->GetLogs();
+  // // this is how to get logs from logrecorder proxies - these are the new logs
+  // // vtkNew<vtkPVLogInformation> logInformation;
+  // // logInformation->SetRank(0);
+  // // pqNodeEditorTimings::LogRecorderProxies[CLIENT_PROCESS]->GatherInformation(logInformation);
+  // // logInformation->GetLogs();
   
 
-  if (server->isRemote())
-  {
-    if (server->isRenderServerSeparate())
-    {
-      pqNodeEditorTimings::LogRecorderProxies.push_back(pxm->NewProxy("misc", "LogRecorder"));
-      pqNodeEditorTimings::LogRecorderProxies[DATA_SERVER_PROCESS]->SetLocation(vtkSMSession::DATA_SERVER);
-      pqNodeEditorTimings::LogRecorderProxies[DATA_SERVER_PROCESS]->UpdateVTKObjects();
+  // if (server->isRemote())
+  // {
+  //   if (server->isRenderServerSeparate())
+  //   {
+  //     pqNodeEditorTimings::LogRecorderProxies.push_back(pxm->NewProxy("misc", "LogRecorder"));
+  //     pqNodeEditorTimings::LogRecorderProxies[DATA_SERVER_PROCESS]->SetLocation(vtkSMSession::DATA_SERVER);
+  //     pqNodeEditorTimings::LogRecorderProxies[DATA_SERVER_PROCESS]->UpdateVTKObjects();
 
-      pqNodeEditorTimings::LogRecorderProxies.push_back(pxm->NewProxy("misc", "LogRecorder"));
-      pqNodeEditorTimings::LogRecorderProxies[RENDER_SERVER_PROCESS]->SetLocation(vtkSMSession::RENDER_SERVER);
-      pqNodeEditorTimings::LogRecorderProxies[RENDER_SERVER_PROCESS]->UpdateVTKObjects();
+  //     pqNodeEditorTimings::LogRecorderProxies.push_back(pxm->NewProxy("misc", "LogRecorder"));
+  //     pqNodeEditorTimings::LogRecorderProxies[RENDER_SERVER_PROCESS]->SetLocation(vtkSMSession::RENDER_SERVER);
+  //     pqNodeEditorTimings::LogRecorderProxies[RENDER_SERVER_PROCESS]->UpdateVTKObjects();
 
-      // pqNodeEditorTimings::Ui->processComboBox->addItem("Data Server");
-      // pqNodeEditorTimings::Ui->processComboBox->addItem("Render Server");
+  //     // pqNodeEditorTimings::Ui->processComboBox->addItem("Data Server");
+  //     // pqNodeEditorTimings::Ui->processComboBox->addItem("Render Server");
 
-      server->session()->GatherInformation(vtkSMSession::DATA_SERVER, serverInfo, 0);
-      pqNodeEditorTimings::addServerTimerInformation(serverInfo, true);
-      // pqNodeEditorTimings::RankNumbers.push_back(serverInfo->GetNumberOfProcesses());
-      server->session()->GatherInformation(vtkSMSession::RENDER_SERVER, serverInfo, 0);
-      pqNodeEditorTimings::addServerTimerInformation(serverInfo, false);
-      // pqNodeEditorTimings::RankNumbers.push_back(serverInfo->GetNumberOfProcesses());
-    }
-    else
-    {
-      pqNodeEditorTimings::LogRecorderProxies.push_back(pxm->NewProxy("misc", "LogRecorder"));
-      pqNodeEditorTimings::LogRecorderProxies[SERVER_PROCESS]->SetLocation(vtkSMSession::SERVERS);
-      pqNodeEditorTimings::LogRecorderProxies[SERVER_PROCESS]->UpdateVTKObjects();
+  //     server->session()->GatherInformation(vtkSMSession::DATA_SERVER, serverInfo, 0);
+  //     pqNodeEditorTimings::addServerTimerInformation(serverInfo, true);
+  //     // pqNodeEditorTimings::RankNumbers.push_back(serverInfo->GetNumberOfProcesses());
+  //     server->session()->GatherInformation(vtkSMSession::RENDER_SERVER, serverInfo, 0);
+  //     pqNodeEditorTimings::addServerTimerInformation(serverInfo, false);
+  //     // pqNodeEditorTimings::RankNumbers.push_back(serverInfo->GetNumberOfProcesses());
+  //   }
+  //   else
+  //   {
+  //     pqNodeEditorTimings::LogRecorderProxies.push_back(pxm->NewProxy("misc", "LogRecorder"));
+  //     pqNodeEditorTimings::LogRecorderProxies[SERVER_PROCESS]->SetLocation(vtkSMSession::SERVERS);
+  //     pqNodeEditorTimings::LogRecorderProxies[SERVER_PROCESS]->UpdateVTKObjects();
 
-      // pqNodeEditorTimings::Ui->processComboBox->addItem("Server");
+  //     // pqNodeEditorTimings::Ui->processComboBox->addItem("Server");
 
-      server->session()->GatherInformation(vtkPVSession::SERVERS, serverInfo, 0);
-      pqNodeEditorTimings::addServerTimerInformation(serverInfo, false);
-      // pqNodeEditorTimings::RankNumbers.push_back(serverInfo->GetNumberOfProcesses());
-    }
-  }
+  //     server->session()->GatherInformation(vtkPVSession::SERVERS, serverInfo, 0);
+  //     pqNodeEditorTimings::addServerTimerInformation(serverInfo, false);
+  //     // pqNodeEditorTimings::RankNumbers.push_back(serverInfo->GetNumberOfProcesses());
+  //   }
+  // }
+  // pqNodeEditorTimings::LogRecorderProxies[CLIENT_PROCESS]->InvokeCommand("ResetLog");
+  // pqNodeEditorTimings::LogRecorderProxies[CLIENT_PROCESS]->UpdateVTKObjects();
   
   
 
-  /*
+  
   // and increase log buffer size
   vtkSMProxy* proxy = pxm->NewProxy("misc", "TimerLog");
   vtkSMPropertyHelper(proxy, "MaxEntries").Set(180000);
   proxy->UpdateVTKObjects();
-  proxy->Delete();
+  // proxy->Delete();
 
   // Get information about the local process.
   vtkSmartPointer<vtkPVTimerInformation> timerInfo = vtkSmartPointer<vtkPVTimerInformation>::New();
@@ -142,7 +144,9 @@ void pqNodeEditorTimings::refreshTimingLogs()
       pqNodeEditorTimings::addServerTimerInformation(timerInfo, true);
     }
   }
-  */
+  proxy->UpdateVTKObjects();
+  proxy->InvokeCommand("ResetLog");
+  proxy->Delete();  
 
   pqNodeEditorTimings::updateMax();
 }
