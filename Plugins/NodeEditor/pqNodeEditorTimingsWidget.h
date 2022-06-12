@@ -38,8 +38,12 @@ public:
   ~pqNodeEditorTimingsWidget();
 
   void updateTimings();
+  void updateTimingsBarChart();
+  void updateTimingsBoxPlot();
+  void updateTimingsLinePlot();
   
 private:
+  int mode = 0;
   QBoxSet* createBoxSetFromVector(std::vector<double> timings);
   vtkTypeUInt32 global_id;
   QChart* timingsChart = nullptr;
