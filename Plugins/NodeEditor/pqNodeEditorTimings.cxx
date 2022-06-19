@@ -166,10 +166,17 @@ std::vector<double> pqNodeEditorTimings::getLatestServerTimings(vtkTypeUInt32 gl
 {
   std::vector<double> times;
   std::vector<std::vector<double>> st = getServerTimings(global_Id);
-  if (!st.empty())
+  for (auto vec : st)
   {
-    times = st.back();
+    if (!vec.empty())
+    {
+      times.emplace_back(vec.back());
+    }
   }
+  // if (!st.empty())
+  // {
+  //   times = st.back();
+  // }
   return times;
 }
 
@@ -177,10 +184,17 @@ std::vector<double> pqNodeEditorTimings::getLatestDataServerTimings(vtkTypeUInt3
 {
   std::vector<double> times;
   std::vector<std::vector<double>> dst = getDataServerTimings(global_Id);
-  if (!dst.empty())
+  for (auto vec : dst)
   {
-    times = dst.back();
+    if (!vec.empty())
+    {
+      times.emplace_back(vec.back());
+    }
   }
+  // if (!dst.empty())
+  // {
+  //   times = dst.back();
+  // }
   return times;
 }
 

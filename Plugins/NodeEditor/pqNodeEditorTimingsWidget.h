@@ -41,6 +41,9 @@ public:
   void updateTimingsBarChart();
   void updateTimingsBoxPlot();
   void updateTimingsLinePlot();
+
+protected:
+  void mousePressEvent(QMouseEvent *event) override;
   
 private:
   int mode = 0;

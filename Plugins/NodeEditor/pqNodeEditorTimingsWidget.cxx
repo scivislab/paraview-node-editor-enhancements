@@ -76,12 +76,13 @@ pqNodeEditorTimingsWidget::~pqNodeEditorTimingsWidget()
 
 void pqNodeEditorTimingsWidget::updateTimings()
 {
+  std::cout << "current mode is " << this->mode << std::endl;
   if (this->mode == 1)
     updateTimingsBoxPlot();
-  if (this->mode == 2)
+  else if (this->mode == 2)
     updateTimingsBarChart();
   else
-    updateTimingsBarChart();
+    updateTimingsLinePlot();
 }
 
 void pqNodeEditorTimingsWidget::updateTimingsBoxPlot()
@@ -142,6 +143,7 @@ void pqNodeEditorTimingsWidget::updateTimingsBoxPlot()
   // set min max
   double min = 0.0;
   double max = pqNodeEditorTimings::getMaxTime();
+  max += (max-min)/10.0;
 
   //append server categories
   for (int stIdx = 0; stIdx < serverTimes_acc.size(); stIdx++)
@@ -197,14 +199,14 @@ void pqNodeEditorTimingsWidget::updateTimingsBoxPlot()
     axisY->setGridLineColor(g);
     this->timingsChart->addAxis(axisY, Qt::AlignLeft);
     boxplots->attachAxis(axisY);
-    axisY->setRange(min,max+0.1);
+    axisY->setRange(min,max);
 
     axisY->setLinePen(axisPen);
   }
   else
   {
     boxplots->attachAxis(axisList.at(0));
-    axisList.at(0)->setRange(min,max+0.1);
+    axisList.at(0)->setRange(min,max);
   }
 
   this->updateGeometry();
@@ -241,34 +243,43 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
   // the amount of timings is then determined by server times and if thos are 0 then dataservertimes
 
   // 1. step specify number of line series:
-  int numLineSeries = localTime_acc.size();
+  int numLineSeries = 0;
+  int localNumLineSeries = localTime_acc.size();
   if (! numLineSeries && !serverTimes_acc.empty())
   {
-    numLineSeries = serverTimes_acc.at(0).size();
+    numLineSeries += serverTimes_acc.at(0).size();
   }
   if (! numLineSeries && !dataServerTimes_acc.empty())
   {
-    numLineSeries = dataServerTimes_acc.at(0).size();
+    numLineSeries += dataServerTimes_acc.at(0).size();
   }
+  std::vector<QLineSeries*> localLineSeries;
   std::vector<QLineSeries*> lineSeries;
+  for(int i = 0; i < localNumLineSeries; i++)
+  {
+    localLineSeries.emplace_back(new QLineSeries());
+  }
   for(int i = 0; i < numLineSeries; i++)
   {
     lineSeries.emplace_back(new QLineSeries());
   }
-  
-  for (int ls_idx = 0; ls_idx < numLineSeries; ls_idx++)
+
+  for (int lls_idx = 0; lls_idx < localNumLineSeries; lls_idx++)
   {
-    if (localTime_acc.size() > ls_idx)
+    if (localTime_acc.size() > lls_idx)
     {
-      lineSeries[ls_idx]->append(QPointF(1.0,localTime_acc[ls_idx]));
-      std::cout << "append local time" << localTime_acc[ls_idx] << std::endl;
+      localLineSeries[lls_idx]->append(QPointF(1.0,localTime_acc[lls_idx]));
+      std::cout << "append local time" << localTime_acc[lls_idx] << std::endl;
     }
     else
     {
-      lineSeries[ls_idx]->append(QPointF(1.0,0.0));
+      // lineSeries[ls_idx]->append(QPointF(1.0,0.0));
       std::cout << "cannot append local time" << std::endl;
     }
-
+  }
+  
+  for (int ls_idx = 0; ls_idx < numLineSeries; ls_idx++)
+  {
     for (int st_idx = 0; st_idx < serverTimes_acc.size(); st_idx++)
     {
       auto st = serverTimes_acc[st_idx];
@@ -279,7 +290,7 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
       }
       else
       {
-        lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),0.0));
+        // lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),0.0));
         std::cout << "cannot append server time" << std::endl;
       }
     }
@@ -289,16 +300,35 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
   // add series to chart
   // for (auto ls : lineSeries)
   int max_series = 5;
-  int max_width = 3;
+  float max_width = 3;
   int current_series = 0;
-  max_series = std::min(max_series,static_cast<int>(lineSeries.size()));
 
-  int step_transp = 255/max_series;
+  for (int i = localLineSeries.size()-1; i >= 0; i--)
+  {    
+    max_series = std::min(max_series,static_cast<int>(localLineSeries.size()));
+    int step_transp = 255/max_series;
+    QPen pen(QColor(61, 107, 233, 255 - current_series*step_transp));
+    if (!current_series)
+    {
+      pen = QPen(pqNodeEditorUtils::CONSTS::COLOR_DARK_ORANGE);
+    }  
+    float size_offset = (max_width-1.0f)/max_series * current_series;
+    pen.setWidthF(max_width - size_offset);
+
+    QLineSeries* ls = localLineSeries[i];
+    ls->setPen(pen);
+    ls->setPointsVisible(true);
+    this->timingsChart->addSeries(ls);
+
+    current_series++;
+  }
+  // reset series configuration for server line series
+  current_series = 0;
 
   for (int i = lineSeries.size()-1; i >= 0; i--)
   {    
-    // QPen pen(QRgb(0xfdb157));
-    // pen.setWidth(5);
+    max_series = std::min(max_series,static_cast<int>(lineSeries.size()));
+    int step_transp = 255/max_series;
     QPen pen(QColor(61, 107, 233, 255 - current_series*step_transp));
     if (!current_series)
     {
@@ -326,6 +356,7 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
   // set min max
   double min = 0.0;
   double max = pqNodeEditorTimings::getMaxTime();
+  max += (max-min)/10.0;
 
   //append server categories
   for (int stIdx = 0; stIdx < serverTimes_acc.size(); stIdx++)
@@ -419,11 +450,11 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
   std::vector<double> dataServerTimes = pqNodeEditorTimings::getLatestDataServerTimings(this->global_id); // this is only needed if render and data server are seperate
 
   // remove old data if any is there
-  // this->timingsChart->removeAllSeries();
+  this->timingsChart->removeAllSeries();
 
   // append local as first category
   QStringList categories;
-  categories << "acc";
+  // categories << "acc";
   categories << "l";
   
   // set min max
@@ -442,6 +473,7 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
     else
       categories << QString("s") + QString::number(stIdx);
     double serverTime = serverTimes.at(stIdx);
+    std::cout << "add "<< stIdx <<" server time " << serverTime <<std::endl;
     *data << serverTime;
     // max = serverTime > max ? serverTime : max;
   }
@@ -459,6 +491,7 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
   }
 
   max = pqNodeEditorTimings::getMaxTime();
+  max += (max-min)/10;
 
   // set properties of  QBarSeries
   data->setBorderColor(QColor(Qt::transparent));
@@ -467,7 +500,7 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
   timingBarSeries->append(data);
 
   // add series to chart
-  // this->timingsChart->addSeries(timingBarSeries);
+  this->timingsChart->addSeries(timingBarSeries);
 
   // set colors
   QColor c = palette().text().color();
@@ -483,7 +516,8 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
     axisX->setLabelsBrush(QBrush(c));
     axisX->setGridLineColor(g);
     axisX->append(categories);
-    axisX->setRange("acc","");
+    // axisX->setRange("acc","");
+    axisX->setRange("l","");
     this->timingsChart->addAxis(axisX, Qt::AlignBottom);
     timingBarSeries->attachAxis(axisX);
 
@@ -513,6 +547,12 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
     timingBarSeries->attachAxis(axisList.at(0));
     axisList.at(0)->setRange(min,max);
   }
+}
+
+void pqNodeEditorTimingsWidget::mousePressEvent(QMouseEvent *event)
+{
+  this->mode = (this->mode+1) % 3;
+  this->updateTimings();
 }
 
 
