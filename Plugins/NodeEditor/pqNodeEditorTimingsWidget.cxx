@@ -76,7 +76,7 @@ pqNodeEditorTimingsWidget::~pqNodeEditorTimingsWidget()
 
 void pqNodeEditorTimingsWidget::updateTimings()
 {
-  std::cout << "current mode is " << this->mode << std::endl;
+  // std::cout << "current mode is " << this->mode << std::endl;
   if (this->mode == 1)
     updateTimingsBoxPlot();
   else if (this->mode == 2)
@@ -108,7 +108,7 @@ void pqNodeEditorTimingsWidget::updateTimingsBoxPlot()
 
   // all times accumulated
   QBoxSet* allTimes_bs = this->createBoxSetFromVector(allTimes_acc);
-  allTimes_bs->setBrush(pqNodeEditorUtils::CONSTS::COLOR_DARK_ORANGE);
+  allTimes_bs->setBrush(pqNodeEditorUtils::CONSTS::COLOR_DULL_ORANGE);
   boxplots->append(allTimes_bs);
 
   // local times
@@ -235,7 +235,7 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
 
   // all times accumulated
   QBoxSet* allTimes_bs = this->createBoxSetFromVector(allTimes_acc);
-  allTimes_bs->setBrush(pqNodeEditorUtils::CONSTS::COLOR_DARK_ORANGE);
+  allTimes_bs->setBrush(pqNodeEditorUtils::CONSTS::COLOR_DULL_ORANGE);
   boxplots->append(allTimes_bs);
 
   // if there are local timings: take their amount and make that many timing plots
@@ -269,13 +269,13 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
     if (localTime_acc.size() > lls_idx)
     {
       localLineSeries[lls_idx]->append(QPointF(1.0,localTime_acc[lls_idx]));
-      std::cout << "append local time" << localTime_acc[lls_idx] << std::endl;
+      // std::cout << "append local time" << localTime_acc[lls_idx] << std::endl;
     }
-    else
-    {
-      // lineSeries[ls_idx]->append(QPointF(1.0,0.0));
-      std::cout << "cannot append local time" << std::endl;
-    }
+    // else
+    // {
+    //   // lineSeries[ls_idx]->append(QPointF(1.0,0.0));
+    //   std::cout << "cannot append local time" << std::endl;
+    // }
   }
   
   for (int ls_idx = 0; ls_idx < numLineSeries; ls_idx++)
@@ -286,12 +286,7 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
       if (st.size() > ls_idx)
       {
         lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),st[ls_idx]));
-        std::cout << "append server time: "<< st[ls_idx] << std::endl;
-      }
-      else
-      {
-        // lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),0.0));
-        std::cout << "cannot append server time" << std::endl;
+        // std::cout << "append server time: "<< st[ls_idx] << std::endl;
       }
     } 
 
@@ -301,12 +296,7 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
       if (st.size() > ls_idx)
       {
         lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),st[ls_idx]));
-        std::cout << "append server time: "<< st[ls_idx] << std::endl;
-      }
-      else
-      {
-        // lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),0.0));
-        std::cout << "cannot append server time" << std::endl;
+        // std::cout << "append server time: "<< st[ls_idx] << std::endl;
       }
     } 
   }
@@ -323,7 +313,7 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
     QPen pen(QColor(61, 107, 233, step_transp*(i+1)));
     if (i == localLineSeries.size()-1)
     {
-      pen = QPen(pqNodeEditorUtils::CONSTS::COLOR_DARK_ORANGE);
+      pen = QPen(pqNodeEditorUtils::CONSTS::COLOR_DULL_ORANGE);
     }  
     float size_step = (max_width-1.0f)/max_series;
     pen.setWidthF(1.0f + size_step*(i+1));
@@ -344,7 +334,7 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
     QPen pen(QColor(61, 107, 233, step_transp*(i+1)));
     if (i == lineSeries.size()-1)
     {
-      pen = QPen(pqNodeEditorUtils::CONSTS::COLOR_DARK_ORANGE);
+      pen = QPen(pqNodeEditorUtils::CONSTS::COLOR_DULL_ORANGE);
     }
     float size_step = (max_width-1.0f)/max_series;
     pen.setWidthF(1.0f + size_step*(i+1));
@@ -483,7 +473,7 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
     else
       categories << QString("s") + QString::number(stIdx);
     double serverTime = serverTimes.at(stIdx);
-    std::cout << "add "<< stIdx <<" server time " << serverTime <<std::endl;
+    // std::cout << "add "<< stIdx <<" server time " << serverTime <<std::endl;
     *data << serverTime;
     // max = serverTime > max ? serverTime : max;
   }
