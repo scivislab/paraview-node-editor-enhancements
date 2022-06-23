@@ -293,57 +293,67 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
         // lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),0.0));
         std::cout << "cannot append server time" << std::endl;
       }
-    }
-    
+    } 
+
+    for (int st_idx = 0; st_idx < dataServerTimes_acc.size(); st_idx++)
+    {
+      auto st = dataServerTimes_acc[st_idx];
+      if (st.size() > ls_idx)
+      {
+        lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),st[ls_idx]));
+        std::cout << "append server time: "<< st[ls_idx] << std::endl;
+      }
+      else
+      {
+        // lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),0.0));
+        std::cout << "cannot append server time" << std::endl;
+      }
+    } 
   }
 
   // add series to chart
-  // for (auto ls : lineSeries)
   int max_series = 5;
   float max_width = 3;
-  int current_series = 0;
 
-  for (int i = localLineSeries.size()-1; i >= 0; i--)
+  for (int i = 0; i < localLineSeries.size(); i++)
   {    
-    max_series = std::min(max_series,static_cast<int>(localLineSeries.size()));
+    // max_series = std::min(max_series,static_cast<int>(localLineSeries.size()));
+    max_series = static_cast<int>(localLineSeries.size());
     int step_transp = 255/max_series;
-    QPen pen(QColor(61, 107, 233, 255 - current_series*step_transp));
-    if (!current_series)
+    QPen pen(QColor(61, 107, 233, step_transp*(i+1)));
+    if (i == localLineSeries.size()-1)
     {
       pen = QPen(pqNodeEditorUtils::CONSTS::COLOR_DARK_ORANGE);
     }  
-    float size_offset = (max_width-1.0f)/max_series * current_series;
-    pen.setWidthF(max_width - size_offset);
+    float size_step = (max_width-1.0f)/max_series;
+    pen.setWidthF(1.0f + size_step*(i+1));
 
     QLineSeries* ls = localLineSeries[i];
     ls->setPen(pen);
     ls->setPointsVisible(true);
     this->timingsChart->addSeries(ls);
 
-    current_series++;
   }
-  // reset series configuration for server line series
-  current_series = 0;
 
-  for (int i = lineSeries.size()-1; i >= 0; i--)
+  //TODO add only max series line plots
+  for (int i = 0; i < lineSeries.size(); i++)
   {    
-    max_series = std::min(max_series,static_cast<int>(lineSeries.size()));
+    // max_series = std::min(max_series,static_cast<int>(lineSeries.size()));
+    max_series = static_cast<int>(lineSeries.size());
     int step_transp = 255/max_series;
-    QPen pen(QColor(61, 107, 233, 255 - current_series*step_transp));
-    if (!current_series)
+    QPen pen(QColor(61, 107, 233, step_transp*(i+1)));
+    if (i == lineSeries.size()-1)
     {
       pen = QPen(pqNodeEditorUtils::CONSTS::COLOR_DARK_ORANGE);
-    }  
-    double size_offset = (max_width-1)/max_series * current_series;
-    pen.setWidthF(max_width - size_offset);
+    }
+    float size_step = (max_width-1.0f)/max_series;
+    pen.setWidthF(1.0f + size_step*(i+1));
     
 
     QLineSeries* ls = lineSeries[i];
     ls->setPen(pen);
     ls->setPointsVisible(true);
     this->timingsChart->addSeries(ls);
-
-    current_series++;
   }
   
   this->timingsChart->addSeries(boxplots);
