@@ -168,10 +168,10 @@ int pqNodeEditorWidget::apply()
 
   // update timer log info
   pqNodeEditorTimings::refreshTimingLogs();
-  for (auto it : nodes)
+  for (auto it : this->nodeRegistry)
   {
     if (dynamic_cast<pqPipelineSource*>(it.second->getProxy()) != NULL ||
-	dynamic_cast<pqPipelineFilter*>(it.second->getProxy()) != NULL )
+	    dynamic_cast<pqPipelineFilter*>(it.second->getProxy()) != NULL )
     {
       it.second->updateTimings();
     }

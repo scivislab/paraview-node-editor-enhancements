@@ -108,7 +108,7 @@ void pqNodeEditorTimingsWidget::updateTimingsBoxPlot()
 
   // all times accumulated
   QBoxSet* allTimes_bs = this->createBoxSetFromVector(allTimes_acc);
-  allTimes_bs->setBrush(pqNodeEditorUtils::CONSTS::COLOR_DULL_ORANGE);
+  allTimes_bs->setBrush(pqNodeEditorUtils::CONSTS::COLOR_BASE_ORANGE);
   boxplots->append(allTimes_bs);
 
   // local times
@@ -235,7 +235,7 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
 
   // all times accumulated
   QBoxSet* allTimes_bs = this->createBoxSetFromVector(allTimes_acc);
-  allTimes_bs->setBrush(pqNodeEditorUtils::CONSTS::COLOR_DULL_ORANGE);
+  allTimes_bs->setBrush(pqNodeEditorUtils::CONSTS::COLOR_BASE_ORANGE);
   boxplots->append(allTimes_bs);
 
   // if there are local timings: take their amount and make that many timing plots
@@ -313,7 +313,7 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
     QPen pen(QColor(61, 107, 233, step_transp*(i+1)));
     if (i == localLineSeries.size()-1)
     {
-      pen = QPen(pqNodeEditorUtils::CONSTS::COLOR_DULL_ORANGE);
+      pen = QPen(pqNodeEditorUtils::CONSTS::COLOR_BASE_ORANGE);
     }  
     float size_step = (max_width-1.0f)/max_series;
     pen.setWidthF(1.0f + size_step*(i+1));
@@ -334,7 +334,7 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
     QPen pen(QColor(61, 107, 233, step_transp*(i+1)));
     if (i == lineSeries.size()-1)
     {
-      pen = QPen(pqNodeEditorUtils::CONSTS::COLOR_DULL_ORANGE);
+      pen = QPen(pqNodeEditorUtils::CONSTS::COLOR_BASE_ORANGE);
     }
     float size_step = (max_width-1.0f)/max_series;
     pen.setWidthF(1.0f + size_step*(i+1));
