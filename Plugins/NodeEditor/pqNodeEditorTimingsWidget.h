@@ -53,5 +53,3 @@ private:
 };
 
 #endif // pqNodeEditorTimingsWidget_h
-
-

@@ -265,11 +265,12 @@ void pqNodeEditorNode::updateTimings()
 }
 
 // ----------------------------------------------------------------------------
-void pqNodeEditorNode::toggleTimings()
+void pqNodeEditorNode::toggleTimings(int state)
 {
   if (this->timings)
   {
-    this->timings->setVisible(!this->timings->isVisible());
+    // this->timings->setVisible(!this->timings->isVisible());
+    this->timings->setVisible(static_cast<bool>(state));
   }
 }
 

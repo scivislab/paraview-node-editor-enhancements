@@ -249,16 +249,15 @@ void pqNodeEditorTimings::addClientTimerInformation(vtkSmartPointer<vtkPVTimerIn
 {
   // check if there are logs to parse
   int numLogs = timerInfo->GetNumberOfLogs();
+  std::string str;
   if (numLogs < 1)
   {
     qWarning() << "No client timer info could be retrieved";
   }
-  std::cout << "convert " << numLogs << " log in timings map" << std::endl;
-  std::string str = timerInfo->GetLog(0);
-  for (int i = 0; i < numLogs; i++)
+  else
   {
-    std::cout << "########### print log " << i << std::endl;
-    std::cout << timerInfo->GetLog(i) << std::endl;
+    // std::cout << "convert " << numLogs << " log in timings map" << std::endl;
+    str = timerInfo->GetLog(0);
   }
 
   //create regex
@@ -294,7 +293,12 @@ void pqNodeEditorTimings::addServerTimerInformation(vtkSmartPointer<vtkPVTimerIn
     qWarning() << "No server timer info could be retrieved";
   }
 
-  std::cout << "Found " << numLogs << " server logs" << std::endl;
+  // std::cout << "Found " << numLogs << " server logs" << std::endl;
+  // for (int i = 0; i < numLogs; i++)
+  // {
+  //   std::cout << "########### print log " << i << std::endl;
+  //   std::cout << timerInfo->GetLog(i) << std::endl;
+  // }
 
   for (int logId = 0; logId < numLogs; logId++)
   {
@@ -310,8 +314,8 @@ void pqNodeEditorTimings::addServerTimerInformation(vtkSmartPointer<vtkPVTimerIn
     {
       std::smatch match = *i;
 
-      std::cout << "new match: \n";
-      std::cout << match.str()    << std::endl;
+      // std::cout << "new match: \n";
+      // std::cout << match.str()    << std::endl;
       // std::cout << match[0].str() << std::endl;
       // std::cout << match[1].str() << std::endl;
       // std::cout << match[2].str() << std::endl;

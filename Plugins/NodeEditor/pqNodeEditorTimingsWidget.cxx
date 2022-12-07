@@ -44,6 +44,7 @@ QT_CHARTS_USE_NAMESPACE
 pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUInt32 g_id) : global_id(g_id)
 {
   setMinimumSize(200, 200);
+  setMaximumHeight(200);
 
   pqNodeEditorTimings::addGlobalId(this->global_id);
 
@@ -60,7 +61,6 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
   
   QColor c = palette().dark().color();
   this->updateTimings();
-  // this->updateTimingsLinePlot();
     
   QChartView *chartView = new QChartView(this->timingsChart);
   chartView->setRenderHint(QPainter::Antialiasing);
@@ -76,7 +76,6 @@ pqNodeEditorTimingsWidget::~pqNodeEditorTimingsWidget()
 
 void pqNodeEditorTimingsWidget::updateTimings()
 {
-  // std::cout << "current mode is " << this->mode << std::endl;
   if (this->mode == 1)
     updateTimingsBoxPlot();
   else if (this->mode == 2)
@@ -295,7 +294,7 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
       auto st = dataServerTimes_acc[st_idx];
       if (st.size() > ls_idx)
       {
-        lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),st[ls_idx]));
+        lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),st[ls_idx])); //TODO check if there is an error in the indexing here
         // std::cout << "append server time: "<< st[ls_idx] << std::endl;
       }
     } 
@@ -393,6 +392,10 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
     axisX->setRange("acc","");
     this->timingsChart->addAxis(axisX, Qt::AlignBottom);
     boxplots->attachAxis(axisX);
+    for (auto ls : localLineSeries)
+    {
+      ls->attachAxis(axisX);
+    }
     for (auto ls : lineSeries)
     {
       ls->attachAxis(axisX);
@@ -405,6 +408,10 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
     static_cast<QBarCategoryAxis*>(axisListHoriz.at(0))->clear();
     static_cast<QBarCategoryAxis*>(axisListHoriz.at(0))->append(categories);
     boxplots->attachAxis(axisListHoriz.at(0));
+    for (auto ls : localLineSeries)
+    {
+      ls->attachAxis(axisListHoriz.at(0));
+    }
     for (auto ls : lineSeries)
     {
       ls->attachAxis(axisListHoriz.at(0));
@@ -420,6 +427,10 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
     axisY->setGridLineColor(g);
     this->timingsChart->addAxis(axisY, Qt::AlignLeft);
     boxplots->attachAxis(axisY);
+    for (auto ls : localLineSeries)
+    {
+      ls->attachAxis(axisY);
+    }
     for (auto ls : lineSeries)
     {
       ls->attachAxis(axisY);
@@ -431,6 +442,10 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
   else
   {
     boxplots->attachAxis(axisList.at(0));
+    for (auto ls : localLineSeries)
+    {
+      ls->attachAxis(axisList.at(0));
+    }
     for (auto ls : lineSeries)
     {
       ls->attachAxis(axisList.at(0));

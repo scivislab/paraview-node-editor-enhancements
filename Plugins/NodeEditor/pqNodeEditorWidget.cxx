@@ -367,16 +367,15 @@ int pqNodeEditorWidget::createToolbar(QLayout* layout)
   {
     auto checkBox = new QCheckBox("Show Timings");
     checkBox->setObjectName("ViewTimingsCheckbox");
-    checkBox->setCheckState(this->showViewNodes ? Qt::Checked : Qt::Unchecked);
     this->connect(checkBox, &QCheckBox::stateChanged, this, [this](int state) {
       auto nodes = this->nodeRegistry;
       for (auto it : nodes)
       {
-	if (dynamic_cast<pqPipelineSource*>(it.second->getProxy()) != NULL ||
-	    dynamic_cast<pqPipelineFilter*>(it.second->getProxy()) != NULL )
-      	{
-	  it.second->toggleTimings();
-	}
+        if (dynamic_cast<pqPipelineSource*>(it.second->getProxy()) != NULL ||
+            dynamic_cast<pqPipelineFilter*>(it.second->getProxy()) != NULL )
+        {
+          it.second->toggleTimings(state);
+        }
       }
       this->updateActiveView();
       return 1;
@@ -679,6 +678,9 @@ int pqNodeEditorWidget::createNodeForSource(pqPipelineSource* proxy)
 
   QObject::connect(
     node, &pqNodeEditorNSource::outputPortClicked, this, &pqNodeEditorWidget::toggleInActiveView);
+
+  // set timings visible only if they are toggled on
+  node->toggleTimings(this->findChild<QCheckBox*>("ViewTimingsCheckbox")->checkState());
 
   return 1;
 };

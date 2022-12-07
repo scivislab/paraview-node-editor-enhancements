@@ -61,5 +61,3 @@ private:
 };
 
 #endif // pqNodeEditorTimings_h
-
-

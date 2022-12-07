@@ -190,7 +190,7 @@ public:
   /**
    * Toggle the visibility of the TimingsWidget
    */
-  void toggleTimings();
+  void toggleTimings(int state);
   ///}@
 
   /**
