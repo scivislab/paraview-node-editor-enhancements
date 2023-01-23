@@ -43,7 +43,7 @@ QT_CHARTS_USE_NAMESPACE
 
 pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUInt32 g_id) : global_id(g_id)
 {
-  setMinimumSize(200, 200);
+  setMinimumSize(pqNodeEditorUtils::CONSTS::NODE_WIDTH, 200);
   setMaximumHeight(200);
 
   pqNodeEditorTimings::addGlobalId(this->global_id);
@@ -66,6 +66,7 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
   chartView->setRenderHint(QPainter::Antialiasing);
   
   QHBoxLayout *layout = new QHBoxLayout(this);
+  layout->setContentsMargins(0,0,0,0);
   layout->addWidget(chartView);
 }
 
@@ -134,7 +135,7 @@ void pqNodeEditorTimingsWidget::updateTimingsBoxPlot()
   // add series to chart
   this->timingsChart->addSeries(boxplots);
 
-  // append local as first category
+  // append acc then local as first categories
   QStringList categories;
   categories << "acc";
   categories << "l";

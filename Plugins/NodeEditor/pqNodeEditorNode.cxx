@@ -269,7 +269,14 @@ void pqNodeEditorNode::toggleTimings(int state)
 {
   if (this->timings)
   {
-    // this->timings->setVisible(!this->timings->isVisible());
+    if (state && !this->widgetContainer->isVisible()){
+      this->widgetContainer->show();
+    }
+    else if (!state && this->widgetContainer->isVisible() && this->verbosity == Verbosity::EMPTY)
+    {
+      this->widgetContainer->hide();
+    }
+    
     this->timings->setVisible(static_cast<bool>(state));
   }
 }
