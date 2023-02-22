@@ -23,6 +23,7 @@
 #include "pqNodeEditorTimings.h"
 #include <QtCharts/QChartView>
 #include <QtCharts/QBarSeries>
+#include <QHorizontalBarSeries>
 #include <QtCharts/QStackedBarSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QLegend>
@@ -30,7 +31,6 @@
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QAbstractAxis>
 #include <QLineEdit>
-
 #include <QtCharts/QBoxPlotSeries>
 #include <QtCharts/QLineSeries>
 
@@ -58,6 +58,8 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
   this->timingsChart->setPlotAreaBackgroundVisible(true);
   this->timingsChart->legend()->setVisible(false);
   this->timingsChart->legend()->hide();
+
+  this->setupQChartAxis();
   
   QColor c = palette().dark().color();
   this->updateTimings();
@@ -81,8 +83,10 @@ void pqNodeEditorTimingsWidget::updateTimings()
     updateTimingsBoxPlot();
   else if (this->mode == 2)
     updateTimingsBarChart();
-  else
+  else if (this->mode == 3)
     updateTimingsLinePlot();
+  else
+    updateTimingsHeatMap();
 }
 
 void pqNodeEditorTimingsWidget::updateTimingsBoxPlot()
@@ -163,55 +167,12 @@ void pqNodeEditorTimingsWidget::updateTimingsBoxPlot()
       categories << QString("d") + QString::number(stIdx);
   }
 
-  // set colors
-  QColor c = palette().text().color();
-  QColor g = palette().dark().color();
-  QPen axisPen(palette().dark().color());
-  axisPen.setWidth(1);
-
-  // configure horizontal axis and set categories
-  QList<QAbstractAxis*> axisListHoriz = this->timingsChart->axes(Qt::Horizontal);
-  if (axisListHoriz.empty())
-  {
-    QBarCategoryAxis *axisX = new QBarCategoryAxis();
-    axisX->setLabelsBrush(QBrush(c));
-    axisX->setGridLineColor(g);
-    axisX->append(categories);
-    axisX->setRange("acc","");
-    this->timingsChart->addAxis(axisX, Qt::AlignBottom);
-    boxplots->attachAxis(axisX);
-
-    axisX->setLinePen(axisPen);
-  }
-  else
-  {
-    static_cast<QBarCategoryAxis*>(axisListHoriz.at(0))->clear();
-    static_cast<QBarCategoryAxis*>(axisListHoriz.at(0))->append(categories);
-    boxplots->attachAxis(axisListHoriz.at(0));
-  }
-
-  // configure vertical axis and set range
-  QList<QAbstractAxis*> axisList = this->timingsChart->axes(Qt::Vertical);
-  if (axisList.empty())
-  {
-    QValueAxis *axisY = new QValueAxis();
-    axisY->setLabelsBrush(QBrush(c));
-    axisY->setGridLineColor(g);
-    this->timingsChart->addAxis(axisY, Qt::AlignLeft);
-    boxplots->attachAxis(axisY);
-    axisY->setRange(min,max);
-
-    axisY->setLinePen(axisPen);
-  }
-  else
-  {
-    boxplots->attachAxis(axisList.at(0));
-    axisList.at(0)->setRange(min,max);
-  }
+  std::vector<QAbstractAxis*> axis = this->updateQChartAxis(min, max, categories);
+  boxplots->attachAxis(axis.at(0));
+  boxplots->attachAxis(axis.at(1));
 
   this->updateGeometry();
 }
-
 
 void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
 {
@@ -271,11 +232,6 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
       localLineSeries[lls_idx]->append(QPointF(1.0,localTime_acc[lls_idx]));
       // std::cout << "append local time" << localTime_acc[lls_idx] << std::endl;
     }
-    // else
-    // {
-    //   // lineSeries[ls_idx]->append(QPointF(1.0,0.0));
-    //   std::cout << "cannot append local time" << std::endl;
-    // }
   }
   
   for (int ls_idx = 0; ls_idx < numLineSeries; ls_idx++)
@@ -286,7 +242,6 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
       if (st.size() > ls_idx)
       {
         lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),st[ls_idx]));
-        // std::cout << "append server time: "<< st[ls_idx] << std::endl;
       }
     } 
 
@@ -296,7 +251,6 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
       if (st.size() > ls_idx)
       {
         lineSeries[ls_idx]->append(QPointF(2.0+static_cast<double>(st_idx),st[ls_idx])); //TODO check if there is an error in the indexing here
-        // std::cout << "append server time: "<< st[ls_idx] << std::endl;
       }
     } 
   }
@@ -307,7 +261,6 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
 
   for (int i = 0; i < localLineSeries.size(); i++)
   {    
-    // max_series = std::min(max_series,static_cast<int>(localLineSeries.size()));
     max_series = static_cast<int>(localLineSeries.size());
     int step_transp = 255/max_series;
     QPen pen(QColor(61, 107, 233, step_transp*(i+1)));
@@ -328,7 +281,6 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
   //TODO add only max series line plots
   for (int i = 0; i < lineSeries.size(); i++)
   {    
-    // max_series = std::min(max_series,static_cast<int>(lineSeries.size()));
     max_series = static_cast<int>(lineSeries.size());
     int step_transp = 255/max_series;
     QPen pen(QColor(61, 107, 233, step_transp*(i+1)));
@@ -376,82 +328,18 @@ void pqNodeEditorTimingsWidget::updateTimingsLinePlot()
       categories << QString("d") + QString::number(stIdx);
   }
 
-  // set colors
-  QColor c = palette().text().color();
-  QColor g = palette().dark().color();
-  QPen axisPen(palette().dark().color());
-  axisPen.setWidth(1);
-
-  // configure horizontal axis and set categories
-  QList<QAbstractAxis*> axisListHoriz = this->timingsChart->axes(Qt::Horizontal);
-  if (axisListHoriz.empty())
+  std::vector<QAbstractAxis*> axis = this->updateQChartAxis(min, max, categories);
+  boxplots->attachAxis(axis.at(0));
+  boxplots->attachAxis(axis.at(1));
+  for (auto ls : localLineSeries)
   {
-    QBarCategoryAxis *axisX = new QBarCategoryAxis();
-    axisX->setLabelsBrush(QBrush(c));
-    axisX->setGridLineColor(g);
-    axisX->append(categories);
-    axisX->setRange("acc","");
-    this->timingsChart->addAxis(axisX, Qt::AlignBottom);
-    boxplots->attachAxis(axisX);
-    for (auto ls : localLineSeries)
-    {
-      ls->attachAxis(axisX);
-    }
-    for (auto ls : lineSeries)
-    {
-      ls->attachAxis(axisX);
-    }
-
-    axisX->setLinePen(axisPen);
+    ls->attachAxis(axis.at(0));
+    ls->attachAxis(axis.at(1));
   }
-  else
+  for (auto ls : lineSeries)
   {
-    static_cast<QBarCategoryAxis*>(axisListHoriz.at(0))->clear();
-    static_cast<QBarCategoryAxis*>(axisListHoriz.at(0))->append(categories);
-    boxplots->attachAxis(axisListHoriz.at(0));
-    for (auto ls : localLineSeries)
-    {
-      ls->attachAxis(axisListHoriz.at(0));
-    }
-    for (auto ls : lineSeries)
-    {
-      ls->attachAxis(axisListHoriz.at(0));
-    }
-  }
-
-  // configure vertical axis and set range
-  QList<QAbstractAxis*> axisList = this->timingsChart->axes(Qt::Vertical);
-  if (axisList.empty())
-  {
-    QValueAxis *axisY = new QValueAxis();
-    axisY->setLabelsBrush(QBrush(c));
-    axisY->setGridLineColor(g);
-    this->timingsChart->addAxis(axisY, Qt::AlignLeft);
-    boxplots->attachAxis(axisY);
-    for (auto ls : localLineSeries)
-    {
-      ls->attachAxis(axisY);
-    }
-    for (auto ls : lineSeries)
-    {
-      ls->attachAxis(axisY);
-    }
-
-    axisY->setRange(min,max);
-    axisY->setLinePen(axisPen);
-  }
-  else
-  {
-    boxplots->attachAxis(axisList.at(0));
-    for (auto ls : localLineSeries)
-    {
-      ls->attachAxis(axisList.at(0));
-    }
-    for (auto ls : lineSeries)
-    {
-      ls->attachAxis(axisList.at(0));
-    }
-    axisList.at(0)->setRange(min,max);
+    ls->attachAxis(axis.at(0));
+    ls->attachAxis(axis.at(1));
   }
 
   this->updateGeometry();
@@ -470,7 +358,6 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
 
   // append local as first category
   QStringList categories;
-  // categories << "acc";
   categories << "l";
   
   // set min max
@@ -489,9 +376,7 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
     else
       categories << QString("s") + QString::number(stIdx);
     double serverTime = serverTimes.at(stIdx);
-    // std::cout << "add "<< stIdx <<" server time " << serverTime <<std::endl;
     *data << serverTime;
-    // max = serverTime > max ? serverTime : max;
   }
   
   //append data server times and categories
@@ -503,7 +388,6 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
       categories << QString("d") + QString::number(stIdx);
     double dataServerTime = dataServerTimes.at(stIdx);
     *data << dataServerTime;
-    // max = dataServerTime > max ? dataServerTime : max;
   }
 
   max = pqNodeEditorTimings::getMaxTime();
@@ -518,51 +402,48 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
   // add series to chart
   this->timingsChart->addSeries(timingBarSeries);
 
-  // set colors
-  QColor c = palette().text().color();
-  QColor g = palette().dark().color();
-  QPen axisPen(palette().dark().color());
-  axisPen.setWidth(1);
+  std::vector<QAbstractAxis*> axis = this->updateQChartAxis(min, max, categories);
+  timingBarSeries->attachAxis(axis.at(0));
+  timingBarSeries->attachAxis(axis.at(1));
+}
 
-  // configure horizontal axis and set categories
-  QList<QAbstractAxis*> axisListHoriz = this->timingsChart->axes(Qt::Horizontal);
-  if (axisListHoriz.empty())
-  {
-    QBarCategoryAxis *axisX = new QBarCategoryAxis();
-    axisX->setLabelsBrush(QBrush(c));
-    axisX->setGridLineColor(g);
-    axisX->append(categories);
-    // axisX->setRange("acc","");
-    axisX->setRange("l","");
-    this->timingsChart->addAxis(axisX, Qt::AlignBottom);
-    timingBarSeries->attachAxis(axisX);
+void pqNodeEditorTimingsWidget::updateTimingsHeatMap()
+{
+// fetch data from pqNodeEditorTimings
+  double localTime = pqNodeEditorTimings::getLatestLocalTimings(this->global_id);
+  std::vector<double> serverTimes = pqNodeEditorTimings::getLatestServerTimings(this->global_id);
+  std::vector<double> dataServerTimes = pqNodeEditorTimings::getLatestDataServerTimings(this->global_id); // this is only needed if render and data server are seperate
 
-    axisX->setLinePen(axisPen);
-  }
-  else
-  {
-    static_cast<QBarCategoryAxis*>(axisListHoriz.at(0))->clear();
-    static_cast<QBarCategoryAxis*>(axisListHoriz.at(0))->append(categories);
-    timingBarSeries->attachAxis(axisListHoriz.at(0));
-  }
+  // remove old data if any is there
+  this->timingsChart->removeAllSeries();
+  
+  // set min max
+  double min = 0.0;
+  double max = localTime;
+  max = pqNodeEditorTimings::getMaxTime();
+  max += (max-min)/10;
 
-  // configure vertical axis and set range
-  QList<QAbstractAxis*> axisList = this->timingsChart->axes(Qt::Vertical);
-  if (axisList.empty())
-  {
-    QValueAxis *axisY = new QValueAxis();
-    axisY->setLabelsBrush(QBrush(c));
-    axisY->setGridLineColor(g);
-    this->timingsChart->addAxis(axisY, Qt::AlignLeft);
-    timingBarSeries->attachAxis(axisY);
-    axisY->setRange(min,max);
-    axisY->setLinePen(axisPen);
-  }
-  else
-  {
-    timingBarSeries->attachAxis(axisList.at(0));
-    axisList.at(0)->setRange(min,max);
-  }
+  //create QBarSet and append local time
+  QBarSet* data = new QBarSet("");
+
+  double filterMaxTime = localTime;
+  for (double time : serverTimes)
+    filterMaxTime = std::max(time, filterMaxTime);
+  for (double time : dataServerTimes)
+    filterMaxTime = std::max(time, filterMaxTime);
+  *data << filterMaxTime;
+
+  // set properties of  QBarSeries
+  data->setBorderColor(QColor(Qt::transparent));
+  QHorizontalBarSeries* timingBarSeries = new QHorizontalBarSeries();
+  timingBarSeries->setLabelsVisible(false);
+  timingBarSeries->append(data);
+
+  // add series to chart
+  this->timingsChart->addSeries(timingBarSeries);
+
+  QValueAxis* valAxis = this->updateQChartAxis(min,max);
+  timingBarSeries->attachAxis(valAxis);
 }
 
 void pqNodeEditorTimingsWidget::mousePressEvent(QMouseEvent *event)
@@ -570,7 +451,6 @@ void pqNodeEditorTimingsWidget::mousePressEvent(QMouseEvent *event)
   this->mode = (this->mode+1) % 3;
   this->updateTimings();
 }
-
 
 QBoxSet* pqNodeEditorTimingsWidget::createBoxSetFromVector(std::vector<double> timings)
 {
@@ -592,4 +472,74 @@ QBoxSet* pqNodeEditorTimingsWidget::createBoxSetFromVector(std::vector<double> t
   bs->setValue(QBoxSet::LowerQuartile, low_quart);
   bs->setValue(QBoxSet::UpperQuartile, upp_quart);
   return bs;
+}
+
+void pqNodeEditorTimingsWidget::sortMPIRanksByTime(std::vector<double> timings)
+{}
+
+void pqNodeEditorTimingsWidget::setupQChartAxis()
+{
+  // set colors
+  QColor c = palette().text().color();
+  QColor g = palette().dark().color();
+  QPen axisPen(palette().dark().color());
+  axisPen.setWidth(1);
+
+  //category x axis
+  QBarCategoryAxis *catAxisX = new QBarCategoryAxis();
+  catAxisX->setLabelsBrush(QBrush(c));
+  catAxisX->setGridLineColor(g);
+  catAxisX->setLinePen(axisPen);
+  this->timingsChart->addAxis(catAxisX, Qt::AlignBottom);
+
+  // value x axis
+  QValueAxis *valAxisX = new QValueAxis();
+  valAxisX->setTitleText(QString("max rank time"));
+  valAxisX->setLabelsBrush(QBrush(c));
+  valAxisX->setGridLineColor(g);
+  valAxisX->setLinePen(axisPen);
+  this->timingsChart->addAxis(valAxisX, Qt::AlignBottom);
+
+  // configure vertical axis and set range
+  QValueAxis *axisY = new QValueAxis();
+  axisY->setLabelsBrush(QBrush(c));
+  axisY->setGridLineColor(g);
+  axisY->setLinePen(axisPen);
+  this->timingsChart->addAxis(axisY, Qt::AlignLeft);
+
+}
+
+QValueAxis* pqNodeEditorTimingsWidget::updateQChartAxis(double min, double max)
+{
+  QList<QAbstractAxis*> axisListHoriz = this->timingsChart->axes(Qt::Horizontal);
+  QValueAxis* valAxisX = static_cast<QValueAxis*>(axisListHoriz.at(1));
+  valAxisX->setTitleText(QString("max rank time"));
+  valAxisX->setRange(min,max);
+
+  valAxisX->setVisible(true);
+  QList<QAbstractAxis*> axisListVert = this->timingsChart->axes(Qt::Vertical);
+  axisListVert.at(0)->setVisible(false);
+  axisListHoriz.at(0)->setVisible(false);
+  return valAxisX;
+}
+
+std::vector<QAbstractAxis*> pqNodeEditorTimingsWidget::updateQChartAxis(double min, double max, QStringList categories)
+{
+  QList<QAbstractAxis*> axisListHoriz = this->timingsChart->axes(Qt::Horizontal);
+  QBarCategoryAxis* catAxisX = static_cast<QBarCategoryAxis*>(axisListHoriz.at(0));
+  catAxisX->clear();
+  catAxisX->append(categories);
+  catAxisX->setRange("acc","");
+
+  QList<QAbstractAxis*> axisListVert = this->timingsChart->axes(Qt::Vertical);
+  QAbstractAxis* valAxisY = axisListVert.at(0);
+  valAxisY->setRange(min,max);
+
+  // update visibility
+  catAxisX->setVisible(true);
+  axisListHoriz.at(1)->setVisible(false);
+  valAxisY->setVisible(true);
+
+  std::vector<QAbstractAxis*> axis = {catAxisX, valAxisY};
+  return axis;
 }

@@ -26,6 +26,8 @@
 #include <QtWidgets>
 #include <QtCharts/QChart>
 #include <QtCharts/QBoxSet>
+#include <QtCharts/QValueAxis>
+#include <QtCharts/QAbstractAxis>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -41,15 +43,21 @@ public:
   void updateTimingsBarChart();
   void updateTimingsBoxPlot();
   void updateTimingsLinePlot();
+  void updateTimingsHeatMap();
 
 protected:
   void mousePressEvent(QMouseEvent *event) override;
   
 private:
   int mode = 0;
-  QBoxSet* createBoxSetFromVector(std::vector<double> timings);
   vtkTypeUInt32 global_id;
   QChart* timingsChart = nullptr;
+
+  QBoxSet* createBoxSetFromVector(std::vector<double> timings);
+  void sortMPIRanksByTime(std::vector<double> timings);
+  void setupQChartAxis();
+  QValueAxis* updateQChartAxis(double min, double max);
+  std::vector<QAbstractAxis*> updateQChartAxis(double min, double max, QStringList categories);
 };
 
 #endif // pqNodeEditorTimingsWidget_h
