@@ -33,6 +33,8 @@ list(APPEND sources
   pqNodeEditorTimings.h
   pqNodeEditorTimingsWidget.cxx
   pqNodeEditorTimingsWidget.h
+  pqNodeEditorHeatMapWidget.cxx
+  pqNodeEditorHeatMapWidget.h
 )
 
 paraview_plugin_add_dock_window(

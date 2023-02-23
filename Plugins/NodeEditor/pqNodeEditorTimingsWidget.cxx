@@ -19,8 +19,6 @@
   with ParaViewPluginsNodeEditor for license information.
 -------------------------------------------------------------------------*/
 
-#include "pqNodeEditorTimingsWidget.h"
-#include "pqNodeEditorTimings.h"
 #include <QtCharts/QChartView>
 #include <QtCharts/QBarSeries>
 #include <QHorizontalBarSeries>
@@ -33,18 +31,21 @@
 #include <QLineEdit>
 #include <QtCharts/QBoxPlotSeries>
 #include <QtCharts/QLineSeries>
+#include <QImage>
 
 #include <vector>
 #include <stdio.h>
 
+#include <pqNodeEditorTimingsWidget.h>
+#include <pqNodeEditorTimings.h>
 #include <pqNodeEditorUtils.h>
 
 QT_CHARTS_USE_NAMESPACE
 
 pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUInt32 g_id) : global_id(g_id)
 {
-  setMinimumSize(pqNodeEditorUtils::CONSTS::NODE_WIDTH, 200);
-  setMaximumHeight(200);
+  setMinimumSize(pqNodeEditorUtils::CONSTS::NODE_WIDTH-2*pqNodeEditorUtils::CONSTS::NODE_BORDER_WIDTH, 200);
+  setMaximumSize(pqNodeEditorUtils::CONSTS::NODE_WIDTH-2*pqNodeEditorUtils::CONSTS::NODE_BORDER_WIDTH, 200);
 
   pqNodeEditorTimings::addGlobalId(this->global_id);
 
@@ -59,17 +60,22 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
   this->timingsChart->legend()->setVisible(false);
   this->timingsChart->legend()->hide();
 
-  this->setupQChartAxis();
-  
-  QColor c = palette().dark().color();
-  this->updateTimings();
-    
   QChartView *chartView = new QChartView(this->timingsChart);
   chartView->setRenderHint(QPainter::Antialiasing);
+  chartView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding));
+
+  this->heatmap = new pqNodeEditorHeatMapWidget();
   
-  QHBoxLayout *layout = new QHBoxLayout(this);
+  QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setContentsMargins(0,0,0,0);
+  layout->setAlignment(Qt::AlignHCenter);
+  layout->addWidget(this->heatmap);
   layout->addWidget(chartView);
+
+  this->updateGeometry();
+  
+  this->setupQChartAxis();
+  this->updateTimings();
 }
 
 pqNodeEditorTimingsWidget::~pqNodeEditorTimingsWidget()
@@ -87,6 +93,7 @@ void pqNodeEditorTimingsWidget::updateTimings()
     updateTimingsLinePlot();
   else
     updateTimingsHeatMap();
+
 }
 
 void pqNodeEditorTimingsWidget::updateTimingsBoxPlot()
@@ -438,17 +445,21 @@ void pqNodeEditorTimingsWidget::updateTimingsHeatMap()
   QHorizontalBarSeries* timingBarSeries = new QHorizontalBarSeries();
   timingBarSeries->setLabelsVisible(false);
   timingBarSeries->append(data);
+  timingBarSeries->setBarWidth(0.8);
 
   // add series to chart
   this->timingsChart->addSeries(timingBarSeries);
 
   QValueAxis* valAxis = this->updateQChartAxis(min,max);
   timingBarSeries->attachAxis(valAxis);
+
+  this->heatmap->update(this->global_id);
 }
 
 void pqNodeEditorTimingsWidget::mousePressEvent(QMouseEvent *event)
 {
-  this->mode = (this->mode+1) % 3;
+  this->mode = (this->mode+1) % 4;
+  this->heatmap->setVisible(!static_cast<bool>(mode));
   this->updateTimings();
 }
 
@@ -484,12 +495,15 @@ void pqNodeEditorTimingsWidget::setupQChartAxis()
   QColor g = palette().dark().color();
   QPen axisPen(palette().dark().color());
   axisPen.setWidth(1);
+  QFont f;
+  f.setPointSize(8);
 
   //category x axis
   QBarCategoryAxis *catAxisX = new QBarCategoryAxis();
   catAxisX->setLabelsBrush(QBrush(c));
   catAxisX->setGridLineColor(g);
   catAxisX->setLinePen(axisPen);
+  catAxisX->setLabelsFont(f);
   this->timingsChart->addAxis(catAxisX, Qt::AlignBottom);
 
   // value x axis
@@ -498,6 +512,8 @@ void pqNodeEditorTimingsWidget::setupQChartAxis()
   valAxisX->setLabelsBrush(QBrush(c));
   valAxisX->setGridLineColor(g);
   valAxisX->setLinePen(axisPen);
+  valAxisX->setLabelFormat(QString("%.1f"));
+  valAxisX->setLabelsFont(f);
   this->timingsChart->addAxis(valAxisX, Qt::AlignBottom);
 
   // configure vertical axis and set range
@@ -505,6 +521,8 @@ void pqNodeEditorTimingsWidget::setupQChartAxis()
   axisY->setLabelsBrush(QBrush(c));
   axisY->setGridLineColor(g);
   axisY->setLinePen(axisPen);
+  axisY->setLabelFormat(QString("%.1f"));
+  axisY->setLabelsFont(f);
   this->timingsChart->addAxis(axisY, Qt::AlignLeft);
 
 }
