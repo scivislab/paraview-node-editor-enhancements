@@ -28,10 +28,9 @@ pqNodeEditorHeatMapWidget::pqNodeEditorHeatMapWidget()
   this->heatmap = new QHeatMap();
   this->heatmap->setMargin(0);
   this->heatmap->setMinimumHeight(40);
-  this->heatmap->setMaximumWidth(278);
-  this->heatmap->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed));
+  // this->heatmap->setMaximumWidth(278);
 
-  QVBoxLayout *layout = new QVBoxLayout(this);
+  QHBoxLayout *layout = new QHBoxLayout(this);
   layout->setContentsMargins(0,0,0,0);
   layout->addWidget(this->heatmap);
 
@@ -125,9 +124,7 @@ void pqNodeEditorHeatMapWidget::update(vtkTypeUInt32 gid)
     for (int rank = 0; rank < num_ranks; rank++)
     {
       double current = 1.0 - allRanks[rank] / filterMax;
-      // std::cout << "current " << current << "   filtermax " << filterMax << std::endl;
       const unsigned char* color = this->ctf->MapValue(current);
-      // std::cout << "r: " << static_cast<int>(color[0]) << "  g: " << static_cast<int>(color[1]) << "  b: " << static_cast<int>(color[2]) << std::endl;
       QRgb value = qRgb(static_cast<int>(color[0]), static_cast<int>(color[1]), static_cast<int>(color[2]));
       image.setPixel(rank, iter, value);
     }

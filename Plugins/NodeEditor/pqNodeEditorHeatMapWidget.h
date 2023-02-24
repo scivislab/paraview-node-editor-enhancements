@@ -72,7 +72,6 @@ private:
             heatMapRect.size(),
             Qt::IgnoreAspectRatio,
             Qt::FastTransformation);
-      // painter.drawImage(heatMapRect, this->image);
       painter.drawImage(heatMapRect, todraw);
       
       QRect xLabelRect = fm.boundingRect(this->xLabel);
@@ -96,7 +95,6 @@ private:
 
   QHeatMap* heatmap = nullptr;
   vtkSmartPointer<vtkColorTransferFunction> ctf;
-  void sortMPIRanksByTime(std::vector<double> timings);
 };
 
 #endif // pqNodeEditorHeatMapWidget_h

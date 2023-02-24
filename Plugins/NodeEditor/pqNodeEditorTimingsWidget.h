@@ -28,7 +28,9 @@
 #include <QtCharts/QBoxSet>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QAbstractAxis>
+#include <QtCharts/QChartView>
 #include <pqNodeEditorHeatMapWidget.h>
+#include <pqNodeEditorMaxRankTimeWidget.h>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -53,8 +55,9 @@ private:
   int mode = 0;
   vtkTypeUInt32 global_id;
   QChart* timingsChart = nullptr;
-  // QLabel* heatmap = nullptr;
+  QChartView* chartView = nullptr;
   pqNodeEditorHeatMapWidget* heatmap = nullptr;
+  pqNodeEditorMaxRankTimeWidget* maxRankTime = nullptr;
 
   QBoxSet* createBoxSetFromVector(std::vector<double> timings);
   void sortMPIRanksByTime(std::vector<double> timings);

@@ -60,18 +60,25 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
   this->timingsChart->legend()->setVisible(false);
   this->timingsChart->legend()->hide();
 
-  QChartView *chartView = new QChartView(this->timingsChart);
+  this->chartView = new QChartView(this->timingsChart);
   chartView->setRenderHint(QPainter::Antialiasing);
-  chartView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding));
+  chartView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
   this->heatmap = new pqNodeEditorHeatMapWidget();
+  this->heatmap->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
   this->heatmap->setVisible(false);
+  this->maxRankTime = new pqNodeEditorMaxRankTimeWidget();
+  // this->maxRankTime->setColor(this->timingsChart);
+  this->maxRankTime->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+  this->maxRankTime->setVisible(false);
+
   
   QVBoxLayout *layout = new QVBoxLayout(this);
-  layout->setContentsMargins(0,0,0,0);
+  layout->setContentsMargins(0,0,13,13);
   layout->setAlignment(Qt::AlignHCenter);
   layout->addWidget(this->heatmap);
   layout->addWidget(chartView);
+  layout->addWidget(this->maxRankTime);
 
   this->updateGeometry();
   
@@ -406,6 +413,7 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
   QBarSeries* timingBarSeries = new QBarSeries();
   timingBarSeries->setLabelsVisible(false);
   timingBarSeries->append(data);
+  
 
   // add series to chart
   this->timingsChart->addSeries(timingBarSeries);
@@ -413,6 +421,9 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
   std::vector<QAbstractAxis*> axis = this->updateQChartAxis(min, max, categories);
   timingBarSeries->attachAxis(axis.at(0));
   timingBarSeries->attachAxis(axis.at(1));
+
+  // QBarSet* bs = static_cast<QBarSeries*>(timingsChart->series().at(0))->barSets().at(0);
+  // std::cout << bs->color().red() <<" "<< bs->color().green()<<" "<< bs->color().blue() << std::endl;
 }
 
 void pqNodeEditorTimingsWidget::updateTimingsHeatMap()
@@ -455,12 +466,16 @@ void pqNodeEditorTimingsWidget::updateTimingsHeatMap()
   timingBarSeries->attachAxis(valAxis);
 
   this->heatmap->update(this->global_id);
+
+  this->maxRankTime->update(pqNodeEditorTimings::getLatestMaxTime(), pqNodeEditorTimings::getLatestMaxTime(this->global_id));
 }
 
 void pqNodeEditorTimingsWidget::mousePressEvent(QMouseEvent *event)
 {
   this->mode = (this->mode+1) % 4;
   this->heatmap->setVisible(!static_cast<bool>(mode-3));
+  this->maxRankTime->setVisible(!static_cast<bool>(mode-3));
+  this->chartView->setVisible(static_cast<bool>(mode-3));
   this->updateTimings();
 }
 

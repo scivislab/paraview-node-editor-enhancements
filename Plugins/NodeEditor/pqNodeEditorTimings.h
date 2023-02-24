@@ -42,6 +42,9 @@ public:
   static std::vector<std::vector<double>> getServerTimings(vtkTypeUInt32 global_Id);
   static std::vector<std::vector<double>> getDataServerTimings(vtkTypeUInt32 global_Id);
   static double getMaxTime();
+  static double getLatestMaxTime();
+  static double getMaxTime(vtkTypeUInt32 global_Id);
+  static double getLatestMaxTime(vtkTypeUInt32 global_Id);
 
   static void addGlobalId(vtkTypeUInt32 global_Id);
   static void removeGlobalId(vtkTypeUInt32 global_Id);
@@ -52,10 +55,11 @@ private:
   static void updateMax();
 
   static std::map<vtkTypeUInt32, std::vector<double>> localTimings;
-  static std::map<vtkTypeUInt32, std::vector<std::vector<double>>> serverTimings;
+  static std::map<vtkTypeUInt32, std::vector<std::vector<double>>> serverTimings; //the outer vector corresponds to the rank, the inner to the iterations
   static std::map<vtkTypeUInt32, std::vector<std::vector<double>>> dataServerTimings;
   static std::set<vtkTypeUInt32> globalIds;
   static double max;
+  static double latestMax;
 
   static std::vector<vtkSmartPointer<vtkSMProxy>> LogRecorderProxies;
 };

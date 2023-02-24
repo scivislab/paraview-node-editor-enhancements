@@ -13,6 +13,7 @@
 
 #include <QtDebug>
 #include <regex>
+#include <algorithm>
 
 namespace
 {
@@ -34,6 +35,7 @@ std::map<vtkTypeUInt32, std::vector<std::vector<double>>> pqNodeEditorTimings::s
 std::map<vtkTypeUInt32, std::vector<std::vector<double>>> pqNodeEditorTimings::dataServerTimings;
 std::set<vtkTypeUInt32> pqNodeEditorTimings::globalIds;
 double pqNodeEditorTimings::max;
+double pqNodeEditorTimings::latestMax;
 
 std::vector<vtkSmartPointer<vtkSMProxy>> pqNodeEditorTimings::LogRecorderProxies;
 
@@ -245,6 +247,62 @@ double pqNodeEditorTimings::getMaxTime()
   return pqNodeEditorTimings::max;
 }
 
+double pqNodeEditorTimings::getMaxTime(vtkTypeUInt32 global_Id)
+{
+  double max = 0.0;
+  std::vector<double> timings = getLocalTimings(global_Id);
+  if (!timings.empty())
+  {
+    double temp = *std::max_element(timings.begin(),timings.end());
+    max = std::max(temp, max);
+  }
+  
+  std::vector<std::vector<double>> rankTimings = getServerTimings(global_Id);
+  for (auto t : rankTimings)
+  {
+    if (!t.empty())
+      {
+        double temp = *std::max_element(t.begin(),t.end());
+        max = std::max(temp, max);
+      }
+  }
+
+  rankTimings = getDataServerTimings(global_Id);
+  for (auto t : rankTimings)
+  {
+    if (!t.empty())
+    {
+      double temp = *std::max_element(t.begin(),t.end());
+      max = std::max(temp, max);
+    }
+  }
+
+  return max;
+}
+
+double pqNodeEditorTimings::getLatestMaxTime()
+{
+  return pqNodeEditorTimings::latestMax;
+}
+
+double pqNodeEditorTimings::getLatestMaxTime(vtkTypeUInt32 global_Id)
+{
+  double max = getLatestLocalTimings(global_Id);
+  std::vector<double> lst = getLatestServerTimings(global_Id);
+  if (!lst.empty())
+  {
+    double temp = *std::max_element(lst.begin(), lst.end());
+    max = std::max(temp, max);
+  }
+  lst = getLatestDataServerTimings(global_Id);
+  if (!lst.empty())
+  {
+    double temp = *std::max_element(lst.begin(), lst.end());
+    max = std::max(temp, max);
+  }
+  return max;
+}
+
 void pqNodeEditorTimings::addClientTimerInformation(vtkSmartPointer<vtkPVTimerInformation> timerInfo)
 {
   // check if there are logs to parse
@@ -340,48 +398,102 @@ void pqNodeEditorTimings::addServerTimerInformation(vtkSmartPointer<vtkPVTimerIn
 void pqNodeEditorTimings::updateMax()
 {
   double new_max = 0.0;
+  double new_latestMax = 0.0;
+
+  // // get max from local timings
+  // for (auto& timings : pqNodeEditorTimings::localTimings)
+  // {
+  //   // for (auto& t : timings.second)
+  //   for (size_t i = 0; i < timings.second.size(); i++)
+  //   {
+  //     //only consider timings of currently active modules
+  //     if (pqNodeEditorTimings::globalIds.count(timings.first))
+  //       new_max = new_max < t ? t : new_max;
+  //   }
+  // }
 
   // get max from local timings
   for (auto& timings : pqNodeEditorTimings::localTimings)
   {
-    for (auto& t : timings.second)
+    //only consider timings of currently active modules
+    if (pqNodeEditorTimings::globalIds.count(timings.first))
     {
-      if (pqNodeEditorTimings::globalIds.count(timings.first) )
-        new_max = new_max < t ? t : new_max;
+      for (size_t i = 0; i < timings.second.size(); i++)
+      {
+          double t = timings.second[i];
+          new_max = std::max(new_max, t);
+          if (i == timings.second.size() -1)
+            new_latestMax = std::max(new_latestMax, t);
+      }
     }
   }
 
-  // get max from server timings
+  // // get max from server timings
+  // for (auto& timings : pqNodeEditorTimings::serverTimings)
+  // {
+  //   if (pqNodeEditorTimings::globalIds.count(timings.first) )
+  //   {
+  //     for (auto& ranks : timings.second)
+  //     {
+  //       for (double t : ranks)
+  //       {
+  //         new_max = new_max < t ? t : new_max;
+  //       }
+  //     } 
+  //   }
+  // }
+
   for (auto& timings : pqNodeEditorTimings::serverTimings)
   {
     if (pqNodeEditorTimings::globalIds.count(timings.first) )
     {
-      for (auto& ranks : timings.second)
+      for (auto& rank : timings.second)
       {
-        for (double t : ranks)
+        for (size_t i = 0; i < rank.size(); i++)
         {
-          new_max = new_max < t ? t : new_max;
+          double t = rank[i];
+          new_max = std::max(new_max, t);
+          if (i == timings.second.size() -1)
+            new_latestMax = std::max(new_latestMax, t);
         }
       } 
     }
   }
 
-  // get max from data server timings
+  // // get max from data server timings
+  // for (auto& timings : pqNodeEditorTimings::dataServerTimings)
+  // {
+  //   if (pqNodeEditorTimings::globalIds.count(timings.first) )
+  //   {
+  //   for (auto& ranks : timings.second)
+  //     {
+  //       for (double t : ranks)
+  //       {
+  //         new_max = new_max < t ? t : new_max;
+  //       }
+  //     } 
+  //   }
+  // }
+
   for (auto& timings : pqNodeEditorTimings::dataServerTimings)
   {
     if (pqNodeEditorTimings::globalIds.count(timings.first) )
     {
-    for (auto& ranks : timings.second)
+      for (auto& rank : timings.second)
       {
-        for (double t : ranks)
+        for (size_t i = 0; i < rank.size(); i++)
         {
-          new_max = new_max < t ? t : new_max;
+          double t = rank[i];
+          new_max = std::max(new_max, t);
+          if (i == timings.second.size() -1)
+            new_latestMax = std::max(new_latestMax, t);
         }
       } 
     }
   }
 
   pqNodeEditorTimings::max = new_max;
+  pqNodeEditorTimings::latestMax = new_latestMax;
 }
 
 void pqNodeEditorTimings::addGlobalId(vtkTypeUInt32 gid)
