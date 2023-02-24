@@ -65,6 +65,7 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
   chartView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding));
 
   this->heatmap = new pqNodeEditorHeatMapWidget();
+  this->heatmap->setVisible(false);
   
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setContentsMargins(0,0,0,0);
@@ -90,9 +91,9 @@ void pqNodeEditorTimingsWidget::updateTimings()
   else if (this->mode == 2)
     updateTimingsBarChart();
   else if (this->mode == 3)
-    updateTimingsLinePlot();
-  else
     updateTimingsHeatMap();
+  else
+    updateTimingsLinePlot();
 
 }
 
@@ -459,7 +460,7 @@ void pqNodeEditorTimingsWidget::updateTimingsHeatMap()
 void pqNodeEditorTimingsWidget::mousePressEvent(QMouseEvent *event)
 {
   this->mode = (this->mode+1) % 4;
-  this->heatmap->setVisible(!static_cast<bool>(mode));
+  this->heatmap->setVisible(!static_cast<bool>(mode-3));
   this->updateTimings();
 }
 

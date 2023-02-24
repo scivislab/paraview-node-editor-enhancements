@@ -23,10 +23,14 @@
 #define pqNodeEditorHeatMapWidget_h
 
 #include "vtkType.h"
+#include <vtkColorTransferFunction.h>
+#include <vtkSmartPointer.h>
 #include <QtWidgets>
 #include <QLabel>
 #include <QPainter>
 #include <iostream>
+
+
 
 class pqNodeEditorHeatMapWidget : public QWidget
 {
@@ -64,7 +68,12 @@ private:
       int height = this->height();
 
       QRect heatMapRect(leftMargin, 0, width-leftMargin, height-bottomMargin);
-      painter.drawImage(heatMapRect, this->image);
+      QImage todraw = this->image.scaled(
+            heatMapRect.size(),
+            Qt::IgnoreAspectRatio,
+            Qt::FastTransformation);
+      // painter.drawImage(heatMapRect, this->image);
+      painter.drawImage(heatMapRect, todraw);
       
       QRect xLabelRect = fm.boundingRect(this->xLabel);
       painter.drawText(QPoint(0.5 * textHeight + width / 2 - xLabelRect.width() / 2, height - fm.descent()), this->xLabel);
@@ -86,6 +95,7 @@ private:
   };
 
   QHeatMap* heatmap = nullptr;
+  vtkSmartPointer<vtkColorTransferFunction> ctf;
   void sortMPIRanksByTime(std::vector<double> timings);
 };
 
