@@ -60,7 +60,6 @@ private:
   pqNodeEditorMaxRankTimeWidget* maxRankTime = nullptr;
 
   QBoxSet* createBoxSetFromVector(std::vector<double> timings);
-  void sortMPIRanksByTime(std::vector<double> timings);
   void setupQChartAxis();
   QValueAxis* updateQChartAxis(double min, double max);
   std::vector<QAbstractAxis*> updateQChartAxis(double min, double max, QStringList categories);

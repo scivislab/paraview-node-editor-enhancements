@@ -421,49 +421,46 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
   std::vector<QAbstractAxis*> axis = this->updateQChartAxis(min, max, categories);
   timingBarSeries->attachAxis(axis.at(0));
   timingBarSeries->attachAxis(axis.at(1));
-
-  // QBarSet* bs = static_cast<QBarSeries*>(timingsChart->series().at(0))->barSets().at(0);
-  // std::cout << bs->color().red() <<" "<< bs->color().green()<<" "<< bs->color().blue() << std::endl;
 }
 
 void pqNodeEditorTimingsWidget::updateTimingsHeatMap()
 {
-// fetch data from pqNodeEditorTimings
-  double localTime = pqNodeEditorTimings::getLatestLocalTimings(this->global_id);
-  std::vector<double> serverTimes = pqNodeEditorTimings::getLatestServerTimings(this->global_id);
-  std::vector<double> dataServerTimes = pqNodeEditorTimings::getLatestDataServerTimings(this->global_id); // this is only needed if render and data server are seperate
+// // fetch data from pqNodeEditorTimings
+//   double localTime = pqNodeEditorTimings::getLatestLocalTimings(this->global_id);
+//   std::vector<double> serverTimes = pqNodeEditorTimings::getLatestServerTimings(this->global_id);
+//   std::vector<double> dataServerTimes = pqNodeEditorTimings::getLatestDataServerTimings(this->global_id); // this is only needed if render and data server are seperate
 
-  // remove old data if any is there
-  this->timingsChart->removeAllSeries();
+//   // remove old data if any is there
+//   this->timingsChart->removeAllSeries();
   
-  // set min max
-  double min = 0.0;
-  double max = localTime;
-  max = pqNodeEditorTimings::getMaxTime();
-  max += (max-min)/10;
+//   // set min max
+//   double min = 0.0;
+//   double max = localTime;
+//   max = pqNodeEditorTimings::getMaxTime();
+//   max += (max-min)/10;
 
-  //create QBarSet and append local time
-  QBarSet* data = new QBarSet("");
+//   //create QBarSet and append local time
+//   QBarSet* data = new QBarSet("");
 
-  double filterMaxTime = localTime;
-  for (double time : serverTimes)
-    filterMaxTime = std::max(time, filterMaxTime);
-  for (double time : dataServerTimes)
-    filterMaxTime = std::max(time, filterMaxTime);
-  *data << filterMaxTime;
+//   double filterMaxTime = localTime;
+//   for (double time : serverTimes)
+//     filterMaxTime = std::max(time, filterMaxTime);
+//   for (double time : dataServerTimes)
+//     filterMaxTime = std::max(time, filterMaxTime);
+//   *data << filterMaxTime;
 
-  // set properties of  QBarSeries
-  data->setBorderColor(QColor(Qt::transparent));
-  QHorizontalBarSeries* timingBarSeries = new QHorizontalBarSeries();
-  timingBarSeries->setLabelsVisible(false);
-  timingBarSeries->append(data);
-  timingBarSeries->setBarWidth(0.8);
+//   // set properties of  QBarSeries
+//   data->setBorderColor(QColor(Qt::transparent));
+//   QHorizontalBarSeries* timingBarSeries = new QHorizontalBarSeries();
+//   timingBarSeries->setLabelsVisible(false);
+//   timingBarSeries->append(data);
+//   timingBarSeries->setBarWidth(0.8);
 
-  // add series to chart
-  this->timingsChart->addSeries(timingBarSeries);
+//   // add series to chart
+//   this->timingsChart->addSeries(timingBarSeries);
 
-  QValueAxis* valAxis = this->updateQChartAxis(min,max);
-  timingBarSeries->attachAxis(valAxis);
+//   QValueAxis* valAxis = this->updateQChartAxis(min,max);
+//   timingBarSeries->attachAxis(valAxis);
 
   this->heatmap->update(this->global_id);
 
@@ -500,9 +497,6 @@ QBoxSet* pqNodeEditorTimingsWidget::createBoxSetFromVector(std::vector<double> t
   bs->setValue(QBoxSet::UpperQuartile, upp_quart);
   return bs;
 }
-
-void pqNodeEditorTimingsWidget::sortMPIRanksByTime(std::vector<double> timings)
-{}
 
 void pqNodeEditorTimingsWidget::setupQChartAxis()
 {
