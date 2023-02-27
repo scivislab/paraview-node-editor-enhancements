@@ -400,18 +400,6 @@ void pqNodeEditorTimings::updateMax()
   double new_max = 0.0;
   double new_latestMax = 0.0;
 
-  // // get max from local timings
-  // for (auto& timings : pqNodeEditorTimings::localTimings)
-  // {
-  //   // for (auto& t : timings.second)
-  //   for (size_t i = 0; i < timings.second.size(); i++)
-  //   {
-  //     //only consider timings of currently active modules
-  //     if (pqNodeEditorTimings::globalIds.count(timings.first))
-  //       new_max = new_max < t ? t : new_max;
-  //   }
-  // }
-
   // get max from local timings
   for (auto& timings : pqNodeEditorTimings::localTimings)
   {
@@ -428,21 +416,6 @@ void pqNodeEditorTimings::updateMax()
     }
   }
 
-  // // get max from server timings
-  // for (auto& timings : pqNodeEditorTimings::serverTimings)
-  // {
-  //   if (pqNodeEditorTimings::globalIds.count(timings.first) )
-  //   {
-  //     for (auto& ranks : timings.second)
-  //     {
-  //       for (double t : ranks)
-  //       {
-  //         new_max = new_max < t ? t : new_max;
-  //       }
-  //     } 
-  //   }
-  // }
-
   for (auto& timings : pqNodeEditorTimings::serverTimings)
   {
     if (pqNodeEditorTimings::globalIds.count(timings.first) )
@@ -453,27 +426,12 @@ void pqNodeEditorTimings::updateMax()
         {
           double t = rank[i];
           new_max = std::max(new_max, t);
-          if (i == timings.second.size() -1)
+          if (i == rank.size() -1)
             new_latestMax = std::max(new_latestMax, t);
         }
       } 
     }
   }
-
-  // // get max from data server timings
-  // for (auto& timings : pqNodeEditorTimings::dataServerTimings)
-  // {
-  //   if (pqNodeEditorTimings::globalIds.count(timings.first) )
-  //   {
-  //   for (auto& ranks : timings.second)
-  //     {
-  //       for (double t : ranks)
-  //       {
-  //         new_max = new_max < t ? t : new_max;
-  //       }
-  //     } 
-  //   }
-  // }
 
   for (auto& timings : pqNodeEditorTimings::dataServerTimings)
   {
@@ -485,7 +443,7 @@ void pqNodeEditorTimings::updateMax()
         {
           double t = rank[i];
           new_max = std::max(new_max, t);
-          if (i == timings.second.size() -1)
+          if (i == rank.size() -1)
             new_latestMax = std::max(new_latestMax, t);
         }
       } 

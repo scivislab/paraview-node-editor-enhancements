@@ -425,46 +425,9 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
 
 void pqNodeEditorTimingsWidget::updateTimingsHeatMap()
 {
-// // fetch data from pqNodeEditorTimings
-//   double localTime = pqNodeEditorTimings::getLatestLocalTimings(this->global_id);
-//   std::vector<double> serverTimes = pqNodeEditorTimings::getLatestServerTimings(this->global_id);
-//   std::vector<double> dataServerTimes = pqNodeEditorTimings::getLatestDataServerTimings(this->global_id); // this is only needed if render and data server are seperate
-
-//   // remove old data if any is there
-//   this->timingsChart->removeAllSeries();
-  
-//   // set min max
-//   double min = 0.0;
-//   double max = localTime;
-//   max = pqNodeEditorTimings::getMaxTime();
-//   max += (max-min)/10;
-
-//   //create QBarSet and append local time
-//   QBarSet* data = new QBarSet("");
-
-//   double filterMaxTime = localTime;
-//   for (double time : serverTimes)
-//     filterMaxTime = std::max(time, filterMaxTime);
-//   for (double time : dataServerTimes)
-//     filterMaxTime = std::max(time, filterMaxTime);
-//   *data << filterMaxTime;
-
-//   // set properties of  QBarSeries
-//   data->setBorderColor(QColor(Qt::transparent));
-//   QHorizontalBarSeries* timingBarSeries = new QHorizontalBarSeries();
-//   timingBarSeries->setLabelsVisible(false);
-//   timingBarSeries->append(data);
-//   timingBarSeries->setBarWidth(0.8);
-
-//   // add series to chart
-//   this->timingsChart->addSeries(timingBarSeries);
-
-//   QValueAxis* valAxis = this->updateQChartAxis(min,max);
-//   timingBarSeries->attachAxis(valAxis);
-
   this->heatmap->update(this->global_id);
 
-  this->maxRankTime->update(pqNodeEditorTimings::getLatestMaxTime(), pqNodeEditorTimings::getLatestMaxTime(this->global_id));
+  this->maxRankTime->updateTime(pqNodeEditorTimings::getLatestMaxTime(), pqNodeEditorTimings::getLatestMaxTime(this->global_id));
 }
 
 void pqNodeEditorTimingsWidget::mousePressEvent(QMouseEvent *event)
