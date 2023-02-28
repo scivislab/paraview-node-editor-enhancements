@@ -61,6 +61,8 @@ const QColor COLOR_BASE_DEEP = COLOR_BASE.lighter(COLOR_BASE.lightness() * 0.7 +
 const QColor COLOR_CONSTRAST = QColor::fromHslF(COLOR_BASE.hueF(), COLOR_BASE.saturationF(),
   COLOR_BASE.lightnessF() > 0.5 ? COLOR_BASE.lightnessF() - 0.5 : COLOR_BASE.lightnessF() + 0.5);
 const QColor COLOR_BASE_GREEN = QColor::fromHslF(0.361, 0.666, COLOR_BASE.lightnessF() * 0.4 + 0.2);
+const QColor COLOR_DULL_GREEN = QColor::fromHslF(
+  COLOR_BASE_GREEN.hueF(), COLOR_BASE_GREEN.saturationF() * 0.4, COLOR_CONSTRAST.lightnessF());
 const QColor COLOR_BASE_ORANGE = QColor::fromHslF(0.07, 0.666, COLOR_HIGHLIGHT.lightnessF());
 const QColor COLOR_DULL_ORANGE = QColor::fromHslF(
   COLOR_BASE_ORANGE.hueF(), COLOR_BASE_ORANGE.saturationF() * 0.4, COLOR_CONSTRAST.lightnessF());

@@ -186,6 +186,16 @@ int pqNodeEditorNode::updateSize()
 }
 
 // ----------------------------------------------------------------------------
+void pqNodeEditorNode::setOutlineStyle(OutlineStyle style)
+{
+  this->outlineStyle = style;
+  this->setZValue(style == OutlineStyle::NORMAL ? pqNodeEditorUtils::CONSTS::NODE_LAYER
+                                                : pqNodeEditorUtils::CONSTS::NODE_LAYER + 1);
+  this->update(this->boundingRect());
+}
+
+
+// ----------------------------------------------------------------------------
 void pqNodeEditorNode::setNodeActive(bool active)
 {
   this->nodeActive = active;
@@ -306,6 +316,26 @@ void pqNodeEditorNode::paint(QPainter* painter, const QStyleOptionGraphicsItem*,
     this->boundingRect().adjusted(borderOffset, borderOffset, -borderOffset, -borderOffset);
   path.addRoundedRect(
     br, pqNodeEditorUtils::CONSTS::NODE_BORDER_WIDTH, pqNodeEditorUtils::CONSTS::NODE_BORDER_WIDTH);
+
+  // QPen pen;
+  pen.setWidth(pqNodeEditorUtils::CONSTS::NODE_BORDER_WIDTH);
+  switch (this->outlineStyle)
+  {
+    case OutlineStyle::NORMAL:
+      pen.setBrush(pqNodeEditorUtils::CONSTS::COLOR_CONSTRAST);
+      break;
+    case OutlineStyle::SELECTED_FILTER:
+      pen.setBrush(pqNodeEditorUtils::CONSTS::COLOR_HIGHLIGHT);
+      break;
+    case OutlineStyle::SELECTED_VIEW:
+      pen.setBrush(pqNodeEditorUtils::CONSTS::COLOR_BASE_ORANGE);
+      break;
+    case OutlineStyle::LOOP:
+      pen.setBrush(pqNodeEditorUtils::CONSTS::COLOR_DULL_GREEN);
+      break;
+    default:
+      break;
+  }
 
   painter->setPen(pen);
   painter->fillPath(path, brush);

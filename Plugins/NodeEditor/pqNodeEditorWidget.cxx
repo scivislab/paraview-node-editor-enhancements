@@ -565,6 +565,15 @@ int pqNodeEditorWidget::updateActiveSourcesAndPorts()
       {
         oPort->setMarkedAsSelected(false);
       }
+      continue;
+    }
+
+    it.second->setOutlineStyle(pqNodeEditorNode::OutlineStyle::NORMAL);
+    if (it.second->getLabel()->toPlainText().contains(QString("For")))
+      it.second->setOutlineStyle(pqNodeEditorNode::OutlineStyle::LOOP);
+    for (auto oPort : it.second->getOutputPorts())
+    {
+      oPort->setMarkedAsSelected(false);
     }
   }
 

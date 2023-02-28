@@ -90,6 +90,14 @@ public:
     REPRESENTATION
   };
 
+  enum class OutlineStyle : int
+  {
+    NORMAL = 0,
+    SELECTED_FILTER,
+    SELECTED_VIEW,
+    LOOP
+  };
+
   /**
    * Enum for the background style of the nodes in the node editor scene.
    * NORMAL : node has not been modified since last Apply
@@ -155,6 +163,16 @@ public:
    * Update the style accordingly and return the new verbosity level.
    */
   void incrementVerbosity();
+
+  ///@{
+  /**
+   * Get/Set the type of the node. It can be either NORMAL (unselected), SELECTED_FILTER
+   * (for the active source) or SELECTED_VIEW (for the active view). Update the style accordingly.
+   */
+  void setOutlineStyle(OutlineStyle style);
+  OutlineStyle getOutlineStyle() { return this->outlineStyle; };
+  ///@}
+
 
   /**
    * Get the type of the node. It can be either SOURCE, VIEW or REPRESENTATION.
@@ -245,6 +263,7 @@ protected:
   std::vector<pqNodeEditorPort*> iPorts;
   std::vector<pqNodeEditorPort*> oPorts;
 
+  OutlineStyle outlineStyle{ OutlineStyle::NORMAL };
   bool nodeActive{ false };
   NodeState nodeState{ NodeState::NORMAL };
   Verbosity verbosity{ Verbosity::EMPTY };
