@@ -33,6 +33,9 @@
 #include <pqProxyWidget.h>
 #include <pqServerManagerModel.h>
 
+#include <vtkSMPropertyGroup.h>
+#include <vtkSMProxy.h>
+
 #include <QBrush>
 #include <QGraphicsProxyWidget>
 #include <QGraphicsScene>

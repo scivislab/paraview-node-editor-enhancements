@@ -59,14 +59,38 @@ pqNodeEditorHeatMapWidget::pqNodeEditorHeatMapWidget()
   // ctfDefault->AddRGBPoint(1.0, 0.054902, 0.109804, 0.121569);
 
   // black body radiation map
-  ctfDefault->AddRGBPoint(0.0,0.0,0.0,0.0);
-  ctfDefault->AddRGBPoint(0.14285714285714285,0.2567618382302789,0.08862237092250158,0.06900234709883349);
-  ctfDefault->AddRGBPoint(0.2857142857142857,0.502299529628274,0.12275205976842546,0.10654041357261984);
-  ctfDefault->AddRGBPoint(0.42857142857142855,0.7353154662963063,0.1982320329476474,0.12428036101896534);
-  ctfDefault->AddRGBPoint(0.5714285714285714,0.8771435867383445,0.39490510462624345,0.03816328606394868);
-  ctfDefault->AddRGBPoint(0.7142857142857142,0.911232394909533,0.631724377007152,0.10048201891972874);
-  ctfDefault->AddRGBPoint(0.8571428571428571,0.9072006655243174,0.8550025783221541,0.18879408728283467);
-  ctfDefault->AddRGBPoint(1.0,1.0,1.0,1.0);
+  // ctfDefault->AddRGBPoint(0.0,0.0,0.0,0.0);
+  // ctfDefault->AddRGBPoint(0.14285714285714285,0.2567618382302789,0.08862237092250158,0.06900234709883349);
+  // ctfDefault->AddRGBPoint(0.2857142857142857,0.502299529628274,0.12275205976842546,0.10654041357261984);
+  // ctfDefault->AddRGBPoint(0.42857142857142855,0.7353154662963063,0.1982320329476474,0.12428036101896534);
+  // ctfDefault->AddRGBPoint(0.5714285714285714,0.8771435867383445,0.39490510462624345,0.03816328606394868);
+  // ctfDefault->AddRGBPoint(0.7142857142857142,0.911232394909533,0.631724377007152,0.10048201891972874);
+  // ctfDefault->AddRGBPoint(0.8571428571428571,0.9072006655243174,0.8550025783221541,0.18879408728283467);
+  // ctfDefault->AddRGBPoint(1.0,1.0,1.0,1.0);
+
+  // linear blue (1-31f)
+  ctfDefault->AddRGBPoint(1-0,  0.960784,  1.0,  0.980392);
+  ctfDefault->AddRGBPoint(1-0.05,  0.815686,  0.960784,  0.913725);
+  ctfDefault->AddRGBPoint(1-0.1,  0.670588,  0.929412,  0.870588);
+  ctfDefault->AddRGBPoint(1-0.15,  0.556863,  0.901961,  0.843137);
+  ctfDefault->AddRGBPoint(1-0.2,  0.478431,  0.870588,  0.823529);
+  ctfDefault->AddRGBPoint(1-0.25,  0.439216,  0.831373,  0.803922);
+  ctfDefault->AddRGBPoint(1-0.3,  0.4,  0.8,  0.788235);
+  ctfDefault->AddRGBPoint(1-0.35,  0.376471,  0.768627,  0.768627);
+  ctfDefault->AddRGBPoint(1-0.4,  0.34902,  0.709804,  0.729412);
+  ctfDefault->AddRGBPoint(1-0.45,  0.32549,  0.654902,  0.690196);
+  ctfDefault->AddRGBPoint(1-0.5,  0.301961,  0.607843,  0.658824);
+  ctfDefault->AddRGBPoint(1-0.55,  0.247059,  0.545098,  0.619608);
+  ctfDefault->AddRGBPoint(1-0.6,  0.239216,  0.494118,  0.580392);
+  ctfDefault->AddRGBPoint(1-0.65,  0.227451,  0.439216,  0.541176);
+  ctfDefault->AddRGBPoint(1-0.7,  0.227451,  0.403922,  0.521569);
+  ctfDefault->AddRGBPoint(1-0.75,  0.231373,  0.368627,  0.501961);
+  ctfDefault->AddRGBPoint(1-0.8,  0.227451,  0.321569,  0.470588);
+  ctfDefault->AddRGBPoint(1-0.85,  0.219608,  0.282353,  0.439216);
+  ctfDefault->AddRGBPoint(1-0.9,  0.192157,  0.235294,  0.4);
+  ctfDefault->AddRGBPoint(1-0.95,  0.160784,  0.184314,  0.34902);
+  ctfDefault->AddRGBPoint(1-1,  0.133333,  0.12549,  0.301961);
+  // ctfDefault->Invert();
 
   this->ctf = ctfDefault;
 }
@@ -96,22 +120,6 @@ void pqNodeEditorHeatMapWidget::update(vtkTypeUInt32 gid)
 
   // get maxmimum of all execution times on each rank for this filter
   double filterMax = pqNodeEditorTimings::getMaxTime(gid);
-  // double filterMax = 0.0;
-  // std::vector<double>::iterator res = std::max_element(localTime_acc.begin(),localTime_acc.end());
-  // if (res != localTime_acc.end())
-  //   filterMax = *res;
-  // for (auto vec : serverTimes_acc)
-  // {
-  //   res = std::max_element(vec.begin(),vec.end());
-  //   if (res != vec.end())
-  //     filterMax = std::max(filterMax,*res);
-  // }
-  // for (auto vec : dataServerTimes_acc)
-  // {
-  //   res = std::max_element(vec.begin(),vec.end());
-  //   if (res != vec.end())
-  //     filterMax = std::max(filterMax,*res);
-  // }
 
   // for each iteration 
   for (int iter = 0; iter < num_iter; iter++)

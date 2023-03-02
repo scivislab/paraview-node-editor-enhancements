@@ -30,7 +30,7 @@
 #include <QPainter>
 #include <iostream>
 
-
+#include <pqNodeEditorUtils.h>
 
 class pqNodeEditorHeatMapWidget : public QWidget
 {
@@ -61,13 +61,28 @@ private:
       QPainter painter(this);
       QFontMetrics fm = painter.fontMetrics();
       int textHeight = fm.ascent() + fm.descent();
-      int leftMargin = textHeight;
-      int bottomMargin = textHeight;
+      int leftMargin = textHeight + 1;
+      int bottomMargin = textHeight + 1;
+      int rightMargin = 1;
+      int topMargin = 1;
 
       int width = this->width();
       int height = this->height();
 
-      QRect heatMapRect(leftMargin, 0, width-leftMargin, height-bottomMargin);
+      // QRect heatMapBoundsRect(leftMargin-1, 0, width-leftMargin-rightMargin+2, height-bottomMargin-topMargin+2);
+      QRect heatMapRect(leftMargin, topMargin, width-leftMargin-rightMargin, height-bottomMargin-topMargin);
+
+      painter.save();
+      QPen pen = painter.pen();
+      pen.setColor(pqNodeEditorUtils::CONSTS::COLOR_GRID);
+      pen.setCapStyle(Qt::RoundCap);
+      pen.setJoinStyle(Qt::RoundJoin);
+      pen.setWidth(1);
+      painter.setPen(pen);
+      painter.drawRect(heatMapRect);
+      painter.restore();
+
+      // QRect heatMapRect(leftMargin+1, 1, width-leftMargin, height-bottomMargin);
       QImage todraw = this->image.scaled(
             heatMapRect.size(),
             Qt::IgnoreAspectRatio,
