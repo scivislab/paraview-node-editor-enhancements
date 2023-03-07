@@ -69,29 +69,34 @@ pqNodeEditorHeatMapWidget::pqNodeEditorHeatMapWidget()
   // ctfDefault->AddRGBPoint(1.0,1.0,1.0,1.0);
 
   // linear blue (1-31f)
-  ctfDefault->AddRGBPoint(1-0,  0.960784,  1.0,  0.980392);
-  ctfDefault->AddRGBPoint(1-0.05,  0.815686,  0.960784,  0.913725);
-  ctfDefault->AddRGBPoint(1-0.1,  0.670588,  0.929412,  0.870588);
-  ctfDefault->AddRGBPoint(1-0.15,  0.556863,  0.901961,  0.843137);
-  ctfDefault->AddRGBPoint(1-0.2,  0.478431,  0.870588,  0.823529);
-  ctfDefault->AddRGBPoint(1-0.25,  0.439216,  0.831373,  0.803922);
-  ctfDefault->AddRGBPoint(1-0.3,  0.4,  0.8,  0.788235);
-  ctfDefault->AddRGBPoint(1-0.35,  0.376471,  0.768627,  0.768627);
-  ctfDefault->AddRGBPoint(1-0.4,  0.34902,  0.709804,  0.729412);
-  ctfDefault->AddRGBPoint(1-0.45,  0.32549,  0.654902,  0.690196);
-  ctfDefault->AddRGBPoint(1-0.5,  0.301961,  0.607843,  0.658824);
-  ctfDefault->AddRGBPoint(1-0.55,  0.247059,  0.545098,  0.619608);
-  ctfDefault->AddRGBPoint(1-0.6,  0.239216,  0.494118,  0.580392);
-  ctfDefault->AddRGBPoint(1-0.65,  0.227451,  0.439216,  0.541176);
-  ctfDefault->AddRGBPoint(1-0.7,  0.227451,  0.403922,  0.521569);
-  ctfDefault->AddRGBPoint(1-0.75,  0.231373,  0.368627,  0.501961);
-  ctfDefault->AddRGBPoint(1-0.8,  0.227451,  0.321569,  0.470588);
-  ctfDefault->AddRGBPoint(1-0.85,  0.219608,  0.282353,  0.439216);
-  ctfDefault->AddRGBPoint(1-0.9,  0.192157,  0.235294,  0.4);
-  ctfDefault->AddRGBPoint(1-0.95,  0.160784,  0.184314,  0.34902);
-  ctfDefault->AddRGBPoint(1-1,  0.133333,  0.12549,  0.301961);
+  // ctfDefault->AddRGBPoint(1-0,  0.960784,  1.0,  0.980392);
+  // ctfDefault->AddRGBPoint(1-0.05,  0.815686,  0.960784,  0.913725);
+  // ctfDefault->AddRGBPoint(1-0.1,  0.670588,  0.929412,  0.870588);
+  // ctfDefault->AddRGBPoint(1-0.15,  0.556863,  0.901961,  0.843137);
+  // ctfDefault->AddRGBPoint(1-0.2,  0.478431,  0.870588,  0.823529);
+  // ctfDefault->AddRGBPoint(1-0.25,  0.439216,  0.831373,  0.803922);
+  // ctfDefault->AddRGBPoint(1-0.3,  0.4,  0.8,  0.788235);
+  // ctfDefault->AddRGBPoint(1-0.35,  0.376471,  0.768627,  0.768627);
+  // ctfDefault->AddRGBPoint(1-0.4,  0.34902,  0.709804,  0.729412);
+  // ctfDefault->AddRGBPoint(1-0.45,  0.32549,  0.654902,  0.690196);
+  // ctfDefault->AddRGBPoint(1-0.5,  0.301961,  0.607843,  0.658824);
+  // ctfDefault->AddRGBPoint(1-0.55,  0.247059,  0.545098,  0.619608);
+  // ctfDefault->AddRGBPoint(1-0.6,  0.239216,  0.494118,  0.580392);
+  // ctfDefault->AddRGBPoint(1-0.65,  0.227451,  0.439216,  0.541176);
+  // ctfDefault->AddRGBPoint(1-0.7,  0.227451,  0.403922,  0.521569);
+  // ctfDefault->AddRGBPoint(1-0.75,  0.231373,  0.368627,  0.501961);
+  // ctfDefault->AddRGBPoint(1-0.8,  0.227451,  0.321569,  0.470588);
+  // ctfDefault->AddRGBPoint(1-0.85,  0.219608,  0.282353,  0.439216);
+  // ctfDefault->AddRGBPoint(1-0.9,  0.192157,  0.235294,  0.4);
+  // ctfDefault->AddRGBPoint(1-0.95,  0.160784,  0.184314,  0.34902);
+  // ctfDefault->AddRGBPoint(1-1,  0.133333,  0.12549,  0.301961);
   // ctfDefault->Invert();
 
+  // black blue white
+  ctfDefault->AddRGBPoint(0, 0, 0, 0);
+  ctfDefault->AddRGBPoint(0.333, 0, 0, 0.501960784314);
+  ctfDefault->AddRGBPoint(0.666, 0, 0.501960784314, 1);
+  ctfDefault->AddRGBPoint(1, 1, 1, 1);
   this->ctf = ctfDefault;
 }
 

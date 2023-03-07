@@ -52,7 +52,7 @@ protected:
   void mousePressEvent(QMouseEvent *event) override;
   
 private:
-  int mode = 0;
+  int mode = 3;
   vtkTypeUInt32 global_id;
   QChart* timingsChart = nullptr;
   QChartView* chartView = nullptr;

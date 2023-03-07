@@ -92,7 +92,11 @@ pqNodeEditorTimingsWidget::~pqNodeEditorTimingsWidget()
 }
 
 void pqNodeEditorTimingsWidget::updateTimings()
-{
+{  
+  this->heatmap->setVisible(!static_cast<bool>(mode-3));
+  this->maxRankTime->setVisible(!static_cast<bool>(mode-3));
+  this->chartView->setVisible(static_cast<bool>(mode-3));
+
   if (this->mode == 1)
     updateTimingsBoxPlot();
   else if (this->mode == 2)
@@ -433,9 +437,6 @@ void pqNodeEditorTimingsWidget::updateTimingsHeatMap()
 void pqNodeEditorTimingsWidget::mousePressEvent(QMouseEvent *event)
 {
   this->mode = (this->mode+1) % 4;
-  this->heatmap->setVisible(!static_cast<bool>(mode-3));
-  this->maxRankTime->setVisible(!static_cast<bool>(mode-3));
-  this->chartView->setVisible(static_cast<bool>(mode-3));
   this->updateTimings();
 }
 

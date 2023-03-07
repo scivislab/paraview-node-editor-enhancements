@@ -105,7 +105,7 @@ private:
     bool hasImage = false;
     QImage image;
     QString xLabel = QString("rank ordered by time");
-    QString yLabel = QString("iter.");
+    QString yLabel = QString("iteration");
   };
 
   QHeatMap* heatmap = nullptr;
