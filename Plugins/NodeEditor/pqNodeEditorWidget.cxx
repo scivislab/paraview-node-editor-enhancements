@@ -344,25 +344,6 @@ int pqNodeEditorWidget::createToolbar(QLayout* layout)
     this->autoLayoutCheckbox = checkBox;
   }
   addButton(tr("Zoom"), this->actionZoom, 0, 3);
-  // addSeparator();
-
-  // addButton(tr("Cycle Verbosity"), this->actionCycleNodeVerbosity);
-  // { // add checkbox view nodes
-  //   auto checkBox = new QCheckBox(tr("View Nodes"));
-  //   checkBox->setObjectName("ViewNodesCheckbox");
-  //   checkBox->setCheckState(this->showViewNodes ? Qt::Checked : Qt::Unchecked);
-  //   this->connect(checkBox, &QCheckBox::stateChanged, this, [this](int state) {
-  //     this->showViewNodes = state;
-  //     auto smm = pqApplicationCore::instance()->getServerManagerModel();
-  //     for (auto proxy : smm->findItems<pqView*>())
-  //     {
-  //       this->updateVisibilityEdges(proxy);
-  //     }
-  //     this->updateActiveView();
-  //     return 1;
-  //   });
-  //   toolbarLayout->addWidget(checkBox);
-  // }
 
   {
     auto checkBox = new QCheckBox("Show Timings");
@@ -380,11 +361,8 @@ int pqNodeEditorWidget::createToolbar(QLayout* layout)
       this->updateActiveView();
       return 1;
     });
-    toolbarLayout->addWidget(checkBox);
+    toolbarLayout->addWidget(checkBox, 1, 3);
   }
-
-  // // add spacer
-  // toolbarLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
 
   return 1;
 }
@@ -567,10 +545,6 @@ int pqNodeEditorWidget::updateActiveSourcesAndPorts()
       }
       continue;
     }
-
-    it.second->setOutlineStyle(pqNodeEditorNode::OutlineStyle::NORMAL);
-    if (it.second->getLabel()->toPlainText().contains(QString("For")))
-      it.second->setOutlineStyle(pqNodeEditorNode::OutlineStyle::LOOP);
     for (auto oPort : it.second->getOutputPorts())
     {
       oPort->setMarkedAsSelected(false);

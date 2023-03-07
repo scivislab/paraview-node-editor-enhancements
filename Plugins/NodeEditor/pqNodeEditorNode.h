@@ -164,16 +164,6 @@ public:
    */
   void incrementVerbosity();
 
-  ///@{
-  /**
-   * Get/Set the type of the node. It can be either NORMAL (unselected), SELECTED_FILTER
-   * (for the active source) or SELECTED_VIEW (for the active view). Update the style accordingly.
-   */
-  void setOutlineStyle(OutlineStyle style);
-  OutlineStyle getOutlineStyle() { return this->outlineStyle; };
-  ///@}
-
-
   /**
    * Get the type of the node. It can be either SOURCE, VIEW or REPRESENTATION.
    */
@@ -263,7 +253,6 @@ protected:
   std::vector<pqNodeEditorPort*> iPorts;
   std::vector<pqNodeEditorPort*> oPorts;
 
-  OutlineStyle outlineStyle{ OutlineStyle::NORMAL };
   bool nodeActive{ false };
   NodeState nodeState{ NodeState::NORMAL };
   Verbosity verbosity{ Verbosity::EMPTY };

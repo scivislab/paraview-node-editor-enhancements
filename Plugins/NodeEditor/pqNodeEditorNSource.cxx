@@ -193,6 +193,11 @@ void pqNodeEditorNSource::setupPaintTools(QPen& pen, QBrush& brush)
   else
   {
     pen.setBrush(pqNodeEditorUtils::CONSTS::COLOR_CONSTRAST);
+    if (this->getLabel()->toPlainText().contains(QString("For")))
+    {
+      pen.setColor(pqNodeEditorUtils::CONSTS::COLOR_DULL_GREEN);
+    }
+    
   }
 
   brush = this->nodeState == NodeState::DIRTY ? pqNodeEditorUtils::CONSTS::COLOR_BASE_GREEN
