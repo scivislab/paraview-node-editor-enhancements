@@ -23,7 +23,7 @@
 #include <pqNodeEditorTimings.h>
 #include <pqNodeEditorUtils.h>
 
-pqNodeEditorHeatMapWidget::pqNodeEditorHeatMapWidget()
+pqNodeEditorHeatMapWidget::pqNodeEditorHeatMapWidget(vtkTypeUInt32 gid) : gid(gid)
 {
   this->heatmap = new QHeatMap();
   this->heatmap->setMargin(0);
@@ -102,7 +102,7 @@ pqNodeEditorHeatMapWidget::pqNodeEditorHeatMapWidget()
 
 pqNodeEditorHeatMapWidget::~pqNodeEditorHeatMapWidget(){}
 
-void pqNodeEditorHeatMapWidget::update(vtkTypeUInt32 gid)
+void pqNodeEditorHeatMapWidget::updateHeatMap()
 {
   std::vector<double> localTime_acc = pqNodeEditorTimings::getLocalTimings(gid);
   std::vector<std::vector<double>> serverTimes_acc = pqNodeEditorTimings::getServerTimings(gid);
@@ -149,8 +149,11 @@ void pqNodeEditorHeatMapWidget::update(vtkTypeUInt32 gid)
     }
     allRanks.resize(num_ranks); //add missing zeroes if timings are missing
 
-    // sort them by execution time
-    std::sort(allRanks.begin(),allRanks.end(), std::greater<double>());
+    if (this->heatmap->sortedByTime)
+    {
+      // sort them by execution time
+      std::sort(allRanks.begin(),allRanks.end(), std::greater<double>());
+    }
 
     // iteratively fill a line of the heatmap
     for (int rank = 0; rank < num_ranks; rank++)

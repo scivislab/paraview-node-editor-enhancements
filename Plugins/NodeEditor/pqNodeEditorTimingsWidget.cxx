@@ -64,7 +64,7 @@ pqNodeEditorTimingsWidget::pqNodeEditorTimingsWidget(QWidget *parent, vtkTypeUIn
   chartView->setRenderHint(QPainter::Antialiasing);
   chartView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
-  this->heatmap = new pqNodeEditorHeatMapWidget();
+  this->heatmap = new pqNodeEditorHeatMapWidget(g_id);
   this->heatmap->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
   this->heatmap->setVisible(false);
   this->maxRankTime = new pqNodeEditorMaxRankTimeWidget();
@@ -429,7 +429,7 @@ void pqNodeEditorTimingsWidget::updateTimingsBarChart()
 
 void pqNodeEditorTimingsWidget::updateTimingsHeatMap()
 {
-  this->heatmap->update(this->global_id);
+  this->heatmap->updateHeatMap();
 
   this->maxRankTime->updateTime(pqNodeEditorTimings::getLatestMaxTime(), pqNodeEditorTimings::getLatestMaxTime(this->global_id));
 }

@@ -28,6 +28,8 @@
 #include <QtWidgets>
 #include <QLabel>
 #include <QPainter>
+#include <QHelpEvent>
+#include <QMouseEvent>
 #include <iostream>
 
 #include <pqNodeEditorUtils.h>
@@ -37,15 +39,41 @@ class pqNodeEditorHeatMapWidget : public QWidget
   Q_OBJECT
   
 public:
-  pqNodeEditorHeatMapWidget();
+  pqNodeEditorHeatMapWidget(vtkTypeUInt32 gid);
   ~pqNodeEditorHeatMapWidget();
 
-  void update(vtkTypeUInt32 gid);
+  void updateHeatMap();
+
+  vtkTypeUInt32 gid;
   
 private:
   class QHeatMap : public QLabel
   {
   public:
+    bool sortedByTime = true;
+
+    QHeatMap()
+    {
+      setMouseTracking(true);
+    }
+
+    // bool event(QEvent *event)
+    // {
+    //   if (event->type() == QEvent::ToolTip) {
+    //     QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+    //     if (true)
+    //     {
+    //         QToolTip::showText(helpEvent->globalPos(), "test");
+    //     } else {
+    //         QToolTip::hideText();
+    //         event->ignore();
+    //     }
+
+    //     return true;
+    // }
+    // return QWidget::event(event);
+    // }
+
     void setImage(QImage i)
     {
       this->image = i;
@@ -53,6 +81,22 @@ private:
     }
 
   protected:
+    void mousePressEvent(QMouseEvent* ev)
+    {
+      const QPoint p = ev->pos();
+      if (this->xLabelRect.contains(p,false))
+      {
+        this->sortedByTime = !this->sortedByTime;
+        if (sortedByTime)
+          xLabel = QString("ranks ordered by time");
+        else
+          xLabel = QString("ranks ordered by rank id");
+
+        reinterpret_cast<pqNodeEditorHeatMapWidget*>(this->parent())->updateHeatMap();
+        this->update();
+      }
+    }
+
     void paintEvent(QPaintEvent* event) override
     {     
       if(!this->hasImage)
@@ -89,8 +133,9 @@ private:
             Qt::FastTransformation);
       painter.drawImage(heatMapRect, todraw);
       
-      QRect xLabelRect = fm.boundingRect(this->xLabel);
-      painter.drawText(QPoint(0.5 * textHeight + width / 2 - xLabelRect.width() / 2, height - fm.descent()), this->xLabel);
+      QRect xLabelBoundingRect = fm.boundingRect(this->xLabel);
+      painter.drawText(QPoint(0.5 * textHeight + width / 2 - xLabelBoundingRect.width() / 2, height - fm.descent()), this->xLabel);
+      this->xLabelRect = QRect(0.5 * textHeight + width / 2 - xLabelBoundingRect.width() / 2, height - xLabelBoundingRect.height(), xLabelBoundingRect.width(), xLabelBoundingRect.height());
 
       QRect yLabelRect = fm.boundingRect(this->yLabel).transposed();
       painter.save();
@@ -101,11 +146,14 @@ private:
       painter.restore();
     }
 
+
+
   private:
     bool hasImage = false;
     QImage image;
-    QString xLabel = QString("rank ordered by time");
-    QString yLabel = QString("iteration");
+    QRect xLabelRect;
+    QString xLabel = QString("ranks ordered by time");
+    QString yLabel = QString("run #");
   };
 
   QHeatMap* heatmap = nullptr;
