@@ -51,6 +51,7 @@ private:
   {
   public:
     bool sortedByTime = true;
+    int maxRunNumber = 0;
 
     QHeatMap()
     {
@@ -144,6 +145,14 @@ private:
       painter.translate(QPoint(-height/2,-width/2));
       painter.drawText(QPoint(0.5 * textHeight + height / 2 - yLabelRect.height() / 2, fm.ascent()), this->yLabel);
       painter.restore();
+
+      if (maxRunNumber > 0)
+      {
+        QRect yTickLabelRect = fm.boundingRect(QString::number(this->maxRunNumber));
+        painter.drawText(heatMapRect.topLeft() - QPoint(yTickLabelRect.width() + 5, -fm.ascent()), QString::number(this->maxRunNumber));
+        yTickLabelRect = fm.boundingRect(QString::number(1));
+        painter.drawText(heatMapRect.bottomLeft() - QPoint(yTickLabelRect.width() + 5, fm.descent()), QString::number(1));
+      }
     }
 
 

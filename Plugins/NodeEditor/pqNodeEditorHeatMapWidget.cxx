@@ -126,6 +126,7 @@ void pqNodeEditorHeatMapWidget::updateHeatMap()
   // get maxmimum of all execution times on each rank for this filter
   double filterMax = pqNodeEditorTimings::getMaxTime(gid);
 
+  this->heatmap->maxRunNumber = num_iter;
   // for each iteration 
   for (int iter = 0; iter < num_iter; iter++)
   {
