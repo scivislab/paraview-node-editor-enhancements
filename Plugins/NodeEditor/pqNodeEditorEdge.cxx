@@ -22,6 +22,7 @@
 #include "pqNodeEditorEdge.h"
 
 #include "pqNodeEditorNode.h"
+#include "pqNodeEditorLabel.h"
 #include "pqNodeEditorPort.h"
 #include "pqNodeEditorUtils.h"
 
@@ -158,6 +159,8 @@ void pqNodeEditorEdge::paint(
   // Pre-allocate pens for faster rendering
   static const QPen edgePipelinePen(pqNodeEditorUtils::CONSTS::COLOR_HIGHLIGHT,
     pqNodeEditorUtils::CONSTS::EDGE_WIDTH, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+  static const QPen loopEdgePipelinePen(pqNodeEditorUtils::CONSTS::COLOR_HIGHLIGHT,
+    pqNodeEditorUtils::CONSTS::EDGE_WIDTH, Qt::DashLine, Qt::RoundCap, Qt::RoundJoin);
   static const QPen activeViewPen(pqNodeEditorUtils::CONSTS::COLOR_BASE_ORANGE,
     pqNodeEditorUtils::CONSTS::EDGE_WIDTH, Qt::DashDotLine, Qt::RoundCap, Qt::RoundJoin);
   static const QPen unfocusedPen(pqNodeEditorUtils::CONSTS::COLOR_DULL_ORANGE,
@@ -167,6 +170,11 @@ void pqNodeEditorEdge::paint(
   {
     this->edgeOverlay->setPen(edgePipelinePen);
     painter->setPen(edgePipelinePen);
+    if (this->consumerInputPortIdx == 1 && this->consumer->getLabel()->toPlainText().contains(QString("For")))
+    {
+      this->edgeOverlay->setPen(loopEdgePipelinePen);
+      painter->setPen(loopEdgePipelinePen);
+    }
   }
   else if (this->consumer->isNodeActive())
   {

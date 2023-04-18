@@ -102,6 +102,21 @@ pqNodeEditorHeatMapWidget::pqNodeEditorHeatMapWidget(vtkTypeUInt32 gid) : gid(gi
 
 pqNodeEditorHeatMapWidget::~pqNodeEditorHeatMapWidget(){}
 
+QImage pqNodeEditorHeatMapWidget::getCTFImage()
+{
+  int num_samples = 200;
+  QImage image(1,num_samples,QImage::Format::Format_RGB32);
+    // iteratively fill a line of the heatmap
+  for (int sample = 0; sample < num_samples; sample++)
+  {
+    double d = 1.0 - static_cast<double>(sample) / static_cast<double>(num_samples);
+    const unsigned char* color = this->ctf->MapValue(d);
+    QRgb value = qRgb(static_cast<int>(color[0]), static_cast<int>(color[1]), static_cast<int>(color[2]));
+    image.setPixel(0, sample, value);
+  }
+  return image;
+}
+
 void pqNodeEditorHeatMapWidget::updateHeatMap()
 {
   std::vector<double> localTime_acc = pqNodeEditorTimings::getLocalTimings(gid);
@@ -125,6 +140,7 @@ void pqNodeEditorHeatMapWidget::updateHeatMap()
 
   // get maxmimum of all execution times on each rank for this filter
   double filterMax = pqNodeEditorTimings::getMaxTime(gid);
+  this->heatmap->setRange(0.0, filterMax);
 
   this->heatmap->maxRunNumber = num_iter;
   // for each iteration 

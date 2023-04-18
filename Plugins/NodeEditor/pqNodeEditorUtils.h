@@ -66,6 +66,8 @@ const QColor COLOR_DULL_GREEN = QColor::fromHslF(
 const QColor COLOR_BASE_ORANGE = QColor::fromHslF(0.07, 0.666, COLOR_HIGHLIGHT.lightnessF());
 const QColor COLOR_DULL_ORANGE = QColor::fromHslF(
   COLOR_BASE_ORANGE.hueF(), COLOR_BASE_ORANGE.saturationF() * 0.4, COLOR_CONSTRAST.lightnessF());
+const QColor COLOR_DULL_HIGHTLIGHT = QColor::fromHslF(
+  COLOR_HIGHLIGHT.hueF(), COLOR_HIGHLIGHT.saturationF() * 0.4, COLOR_CONSTRAST.lightnessF());
 
 // Z depth for graph elements at parent level
 constexpr int ANNOTATION_LAYER = 1;

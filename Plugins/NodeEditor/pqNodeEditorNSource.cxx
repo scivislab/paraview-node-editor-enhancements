@@ -192,14 +192,13 @@ void pqNodeEditorNSource::setupPaintTools(QPen& pen, QBrush& brush)
   }
   else
   {
-    pen.setBrush(pqNodeEditorUtils::CONSTS::COLOR_CONSTRAST);
-    if (this->getLabel()->toPlainText().contains(QString("For")))
-    {
-      pen.setColor(pqNodeEditorUtils::CONSTS::COLOR_DULL_GREEN);
-    }
-    
+    pen.setBrush(pqNodeEditorUtils::CONSTS::COLOR_CONSTRAST);    
   }
 
   brush = this->nodeState == NodeState::DIRTY ? pqNodeEditorUtils::CONSTS::COLOR_BASE_GREEN
                                               : pqNodeEditorUtils::CONSTS::COLOR_BASE;
+  if (this->getLabel()->toPlainText().contains(QString("For")))
+  {
+      brush = pqNodeEditorUtils::CONSTS::COLOR_HIGHLIGHT;
+  }
 }
