@@ -125,8 +125,8 @@ private:
       // legend
       char format = 'f';
       int prec = 2;
-      QRect legendMaxLabelRect = fm.boundingRect(QString::number(localMaxTime,format,prec));
-      QRect legendMinLabelRect = fm.boundingRect(QString::number(localMinTime,format,prec));
+      QRect legendMaxLabelRect = fm.boundingRect(QString::number(localMaxTime,format,prec) + QString('s'));
+      QRect legendMinLabelRect = fm.boundingRect(QString::number(localMinTime,format,prec) + QString('s'));
       int legendLabelHeight = legendMinLabelRect.height() + legendMaxLabelRect.height();
       int legendLabelWidth = std::max(legendMinLabelRect.width(),legendMaxLabelRect.width());
       QRect legendRect(width-rightMargin-legendLabelWidth, topMargin + legendLabelHeight/2, legendLabelWidth , height-bottomMargin-topMargin-legendLabelHeight);
@@ -137,12 +137,11 @@ private:
             Qt::FastTransformation);
       painter.drawImage(legendRect, legendImage);
 
-      painter.drawText(QPoint(legendRect.right() - legendMaxLabelRect.width(), legendRect.top() - fm.descent()), QString::number(localMaxTime,format,prec));
-      painter.drawText(QPoint(legendRect.right() - legendMinLabelRect.width(), legendRect.bottom() + fm.ascent()), QString::number(localMinTime,format,prec));
+      painter.drawText(QPoint(legendRect.right() - legendMaxLabelRect.width(), legendRect.top() - fm.descent()), QString::number(localMaxTime,format,prec) + QString('s'));
+      painter.drawText(QPoint(legendRect.right() - legendMinLabelRect.width(), legendRect.bottom() + fm.ascent()), QString::number(localMinTime,format,prec) + QString('s'));
 
-      // QRect heatMapBoundsRect(leftMargin-1, 0, width-leftMargin-rightMargin+2, height-bottomMargin-topMargin+2);
+      // heat map 
       QRect heatMapRect(leftMargin, topMargin, width-leftMargin-rightMargin-spacing-legendLabelWidth, height-bottomMargin-topMargin);
-
       painter.save();
       QPen pen = painter.pen();
       pen.setColor(pqNodeEditorUtils::CONSTS::COLOR_GRID);
@@ -153,17 +152,18 @@ private:
       painter.drawRect(heatMapRect);
       painter.restore();
 
-      // QRect heatMapRect(leftMargin+1, 1, width-leftMargin, height-bottomMargin);
       QImage heatMapDraw = this->image.scaled(
             heatMapRect.size(),
             Qt::IgnoreAspectRatio,
             Qt::FastTransformation);
       painter.drawImage(heatMapRect, heatMapDraw);
       
+      // x label
       QRect xLabelBoundingRect = fm.boundingRect(this->xLabel);
       painter.drawText(QPoint(0.5 * textHeight + heatMapRect.width() / 2 - xLabelBoundingRect.width() / 2, height - fm.descent()), this->xLabel);
       this->xLabelRect = QRect(0.5 * textHeight + heatMapRect.width() / 2 - xLabelBoundingRect.width() / 2, height - xLabelBoundingRect.height(), xLabelBoundingRect.width(), xLabelBoundingRect.height());
 
+      // y label
       QRect yLabelRect = fm.boundingRect(this->yLabel).transposed();
       painter.save();
       painter.translate(QPoint(width/2,height/2));
@@ -176,9 +176,9 @@ private:
       if (maxRunNumber > 0)
       {
         QRect yTickLabelRect = fm.boundingRect(QString::number(this->maxRunNumber));
-        painter.drawText(heatMapRect.topLeft() - QPoint(yTickLabelRect.width() + 5, -fm.ascent()), QString::number(this->maxRunNumber));
+        painter.drawText(heatMapRect.topLeft() - QPoint(yTickLabelRect.width() + 5, -fm.ascent()), QString::number(1));
         yTickLabelRect = fm.boundingRect(QString::number(1));
-        painter.drawText(heatMapRect.bottomLeft() - QPoint(yTickLabelRect.width() + 5, fm.descent()), QString::number(1));
+        painter.drawText(heatMapRect.bottomLeft() - QPoint(yTickLabelRect.width() + 5, fm.descent()), QString::number(this->maxRunNumber));
       }
     }
 

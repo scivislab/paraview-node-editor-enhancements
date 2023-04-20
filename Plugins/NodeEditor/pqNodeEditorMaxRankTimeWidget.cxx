@@ -65,8 +65,8 @@ void pqNodeEditorMaxRankTimeWidget::paintEvent(QPaintEvent* event)
   painter.drawLine(0, currentHOffset, width, currentHOffset);
   
   currentHOffset += pqNodeEditorMaxRankTimeWidget::SPACING + fm.ascent();
-  painter.drawText(0,currentHOffset,QString("0.0"));
-  QString maxTime_s = QString::number(this->maxTime);
+  painter.drawText(0,currentHOffset,QString::number(0.0,'f',2) + QString('s'));
+  QString maxTime_s = QString::number(this->maxTime,'f',2) + QString('s');
   QRect ub = fm.boundingRect(maxTime_s);
   painter.drawText(width - ub.width() - 3, currentHOffset, maxTime_s);
 
