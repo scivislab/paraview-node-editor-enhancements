@@ -1,3 +1,10 @@
+Remark
+======
+
+This is a fork of ParaView containing the performance annotation extension to the Node Editor Plugin described in the paper "Extended Visual Programming for Complex Parallel Pipelines in ParaView" to be presented at EGPGV (https://diglib.eg.org/handle/10.2312/2633345).
+
+---
+
 ![ParaView](Utilities/Doxygen/images/paraview-logo-small.png)
 
 Introduction
